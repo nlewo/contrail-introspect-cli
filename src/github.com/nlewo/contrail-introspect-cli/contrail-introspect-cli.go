@@ -95,6 +95,9 @@ func routeList(col Collection) {
 
 func routeGet(c Collection, srcIp string) xml.Node {
  	route, _ := c.node.Search("RouteUcSandeshData/src_ip[text()='" + srcIp + "']/..")
+	if len(route) == 0 {
+		log.Fatal("Route to " + srcIp + " was not found")
+	}
 	return route[0]
 }
 
