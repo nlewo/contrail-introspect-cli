@@ -87,8 +87,6 @@ type Collection struct {
 }
 
 func routeList(col Collection) {
-	fmt.Printf("%d\n", col.node.CountChildren())
-	fmt.Printf("%s\n", col.node.Attributes())
 	ss, _ := col.node.Search("RouteUcSandeshData/src_ip/text()")	
 	for _, s := range ss {
 		fmt.Printf("%s\n", s)
