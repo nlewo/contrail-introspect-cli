@@ -18,7 +18,10 @@ func load(url string, fromFile bool) *xml.XmlDocument{
 		file, _ := os.Open(url)
 		data, _ = ioutil.ReadAll(file)
 	} else {
-		resp, _ := http.Get(url)
+		resp, err := http.Get(url)
+		if err != nil {
+			log.Fatal(err)
+		}
 		data, _ = ioutil.ReadAll(resp.Body)
 	}
 	doc, _ := gokogiri.ParseXml(data)
