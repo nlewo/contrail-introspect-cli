@@ -58,6 +58,7 @@ func fromDataToCollection(data []byte, descCol DescCol) Collection {
 	doc, _ := gokogiri.ParseXml(data)
 	ss, _ := doc.Search(descCol.BaseXpath)
 	col := Collection{node: ss[0], descCol: descCol}
+	col.Init()
 	return col
 }
 
@@ -81,6 +82,7 @@ type Collection struct {
 	descCol DescCol;
 	doc *xml.XmlDocument;
 	node xml.Node;
+	elements []Element;
 }
 
 type DescCol struct {
@@ -91,8 +93,8 @@ type DescCol struct {
 }
 
 type DescElement struct {
-	Short string;
-	Long []string;
+	ShortDetailXpath string;
+	LongDetailFunc (func (Element));
 }
 
 type Element struct {
@@ -100,15 +102,39 @@ type Element struct {
 	desc DescElement;
 }
 
-func BuildCol(p Page, d DescCol, e DescElement) Collection {
-	col := p.Load(d)
-	return col
+func (col *Collection) Init() {
+	ss, _ := col.node.Search("*")
+	col.elements = make([]Element, len(ss))
+	for i, s := range ss {
+		col.elements[i] = Element{node: s, desc: col.descCol.DescElt}
+	}
 }
 
-func (col Collection) List() {
-	ss, _ := col.node.Search(col.descCol.ShortDetailXpath)	
-	for _, s := range ss {
-		fmt.Printf("%s\n", s)
+func (e Element) Short() {
+	s, _ := e.node.Search(e.desc.ShortDetailXpath)
+	fmt.Printf("%s\n", s[0])
+}
+
+func (e Element) Long() {
+	e.desc.LongDetailFunc(e)
+}
+
+func test() {
+	col := BuildRouteFile("tmp.out").Load(DescRoute())
+	col.Init()
+	for _, e := range col.elements {
+		e.Long()
+	}
+}
+
+func (col Collection) Short() {
+	for _, e := range col.elements {
+		e.Short()
+	}
+}
+func (col Collection) Long() {
+	for _, e := range col.elements {
+		e.Long()
 	}
 }
 
@@ -129,19 +155,26 @@ func DescItf() DescCol {
 	return DescCol{
 		BaseXpath: "__ItfResp_list/ItfResp/itf_list/list",
 		ShortDetailXpath: "ItfSandeshData/name/text()",
+		DescElt: DescElement {
+			ShortDetailXpath: "ItfSandeshData/name/text()"},
 	}
 }
 
 func DescRoute() DescCol {
 	return DescCol{
 		BaseXpath: "__Inet4UcRouteResp_list/Inet4UcRouteResp/route_list/list",
-		ShortDetailXpath: "RouteUcSandeshData/src_ip/text()"}
+		ShortDetailXpath: "RouteUcSandeshData/src_ip/text()",
+		DescElt: DescElement {
+			ShortDetailXpath: "src_ip/text()",
+			LongDetailFunc: routeDetail},
+	}
 }
 
 func DescVrf() DescCol {
 	return DescCol{
 		BaseXpath: "//vrf_list/list",
-		ShortDetailXpath: "//name/text()"}
+		ShortDetailXpath: "//name/text()",
+	}
 }
 
 func routeGet(c Collection, srcIp string) xml.Node {
@@ -152,10 +185,10 @@ func routeGet(c Collection, srcIp string) xml.Node {
 	return route[0]
 }
 
-func routeDetail(n xml.Node) {
-	srcIp, _ := n.Search("src_ip/text()")
+func routeDetail(e Element) {
+	srcIp, _ := e.node.Search("src_ip/text()")
 	fmt.Printf("%s\n", srcIp[0])
-	paths, _ := n.Search("path_list/list/PathSandeshData")
+	paths, _ := e.node.Search("path_list/list/PathSandeshData")
 	for _, path := range paths {
 		nhs, _ := path.Search("nh/NhSandeshData//dip/text()")
 		peers, _ := path.Search("peer/text()")
@@ -166,6 +199,8 @@ func routeDetail(n xml.Node) {
 }
 
 func main() {
+
+//	test()
 	var vrouter string;
 	var showAsXml bool;
 
@@ -194,7 +229,7 @@ func main() {
 					log.Fatal("Wrong argument number!")
 				}
 				vrouter := c.Args()[0]
-				BuildItfPage(vrouter).Load(DescItf()).List()
+				BuildItfPage(vrouter).Load(DescItf()).Short()
 			},
 		},
 		{
@@ -216,7 +251,7 @@ func main() {
 				if c.NArg() != 1 {
 					log.Fatal("Wrong argument number!")
 				}
-				BuildVrfPage(c.Args()[0]).Load(DescVrf()).List()
+				BuildVrfPage(c.Args()[0]).Load(DescVrf()).Short()
 			},
 		},
 		{
@@ -230,14 +265,14 @@ func main() {
 						fmt.Printf("%s\n", col.node)
 						return
 					}
-					col.List()
+					col.Short()
 				case 3:
 					route := routeGet(col, c.Args()[2])
 					if showAsXml {
 						fmt.Printf("%s\n", route)
 						return
 					}
-					routeDetail(route)
+					routeDetail(Element{node: route})
 				}
 			},
 		},
@@ -251,14 +286,14 @@ func main() {
 						fmt.Printf("%s\n", col.node)
 						return
 					}
-					col.List()
+					col.Short()
 				case 2:
 					route := routeGet(col, c.Args()[1])
 					if showAsXml {
 						fmt.Printf("%s\n", route)
 						return
 					}
-					routeDetail(route)
+					routeDetail(Element{node: route})
 				}
 			},
 		},
