@@ -28,15 +28,19 @@ func load(url string, fromFile bool) *xml.XmlDocument{
 	return(doc)
 }
 
-func multiple(vrouter string, vrf_name string) {
+func multiple(vrouter string, vrf_name string, count bool) {
 	url := "http://" + vrouter + ":8085" + "/Snh_PageReq?x=begin:-1,end:-1,table:" + vrf_name + ".uc.route.0,"
 	
 	var doc = load(url, false)
 	defer doc.Free()
 	xps := xpath.Compile("//route_list/list/RouteUcSandeshData/path_list/list/PathSandeshData/nh/NhSandeshData/mc_list/../../../../../../src_ip/text()")
 	ss, _ := doc.Root().Search(xps)
-	for _, s := range ss {
-		fmt.Printf("%s\n", s)
+	if count {
+		fmt.Printf("%d\n", len(ss))
+	} else {
+		for _, s := range ss {
+			fmt.Printf("%s\n", s)
+		}
 	}
 }
 
@@ -199,10 +203,9 @@ func routeDetail(e Element) {
 }
 
 func main() {
-
-//	test()
 	var vrouter string;
 	var showAsXml bool;
+	var count bool;
 
 	app := cli.NewApp()
 	app.Name = "contrail-introspect-cli"
@@ -235,13 +238,18 @@ func main() {
 		{
 			Name:      "multiple",
 			Usage:     "vrouter vrf_name",
+			Flags: []cli.Flag{
+				cli.BoolFlag{
+					Name: "count",
+					Destination: &count,
+				}},
 			Action: func(c *cli.Context) {
 				if c.NArg() != 2 {
 					log.Fatal("Wrong argument number!")
 				}
 				vrouter := c.Args()[0]
 				vrf_name := c.Args()[1]
-				multiple(vrouter, vrf_name)
+				multiple(vrouter, vrf_name, count)
 			},
 		},
 		{
