@@ -116,6 +116,9 @@ func (col *Collection) Init() {
 
 func (e Element) Short() {
 	s, _ := e.node.Search(e.desc.ShortDetailXpath)
+	if len(s) != 1 {
+		log.Fatal("Xpath '" + e.desc.ShortDetailXpath + "' is not valid")
+	}
 	fmt.Printf("%s\n", s[0])
 }
 
