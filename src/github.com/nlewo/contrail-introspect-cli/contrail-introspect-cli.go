@@ -98,7 +98,8 @@ type DescCol struct {
 
 type DescElement struct {
 	ShortDetailXpath string;
-	LongDetailFunc (func (Element));
+//	LongDetailFunc (func (Element));
+	LongDetail LongAble;
 }
 
 type Element struct {
@@ -123,16 +124,9 @@ func (e Element) Short() {
 }
 
 func (e Element) Long() {
-	e.desc.LongDetailFunc(e)
+	e.desc.LongDetail.Long(e)
 }
 
-func test() {
-	col := BuildRouteFile("tmp.out").Load(DescRoute())
-	col.Init()
-	for _, e := range col.elements {
-		e.Long()
-	}
-}
 
 func (col Collection) Short() {
 	for _, e := range col.elements {
@@ -142,6 +136,7 @@ func (col Collection) Short() {
 func (col Collection) Long() {
 	for _, e := range col.elements {
 		e.Long()
+		fmt.Printf("\n")
 	}
 }
 
@@ -163,24 +158,43 @@ func DescItf() DescCol {
 		BaseXpath: "__ItfResp_list/ItfResp/itf_list/list",
 		ShortDetailXpath: "ItfSandeshData/name/text()",
 		DescElt: DescElement {
-			ShortDetailXpath: "ItfSandeshData/name/text()"},
+			ShortDetailXpath: "name/text()",
+			LongDetail: LongXpaths([]string{"uuid/text()", "name/text()"}),
+		},
 	}
 }
-
 func DescRoute() DescCol {
 	return DescCol{
 		BaseXpath: "__Inet4UcRouteResp_list/Inet4UcRouteResp/route_list/list",
 		ShortDetailXpath: "RouteUcSandeshData/src_ip/text()",
 		DescElt: DescElement {
 			ShortDetailXpath: "src_ip/text()",
-			LongDetailFunc: routeDetail},
+			LongDetail: LongFunc(routeDetail)},
 	}
 }
-
 func DescVrf() DescCol {
 	return DescCol{
 		BaseXpath: "//vrf_list/list",
 		ShortDetailXpath: "//name/text()",
+		DescElt: DescElement {
+			ShortDetailXpath: "name/text()",
+		},
+	}
+}
+
+type LongFunc (func (Element))
+type LongXpaths []string
+
+type LongAble interface {
+	Long(e Element);
+}
+func (lf LongFunc) Long(e Element) {
+	lf(e)
+}
+func (xpaths LongXpaths) Long(e Element) {
+	for _, xpath := range xpaths {
+		s, _ := e.node.Search(xpath)
+		fmt.Printf("%s ", s[0])
 	}
 }
 
@@ -206,9 +220,9 @@ func routeDetail(e Element) {
 }
 
 func main() {
-	var vrouter string;
 	var showAsXml bool;
 	var count bool;
+	var long bool;
 
 	app := cli.NewApp()
 	app.Name = "contrail-introspect-cli"
@@ -225,17 +239,22 @@ func main() {
 			Aliases:     []string{"a"},
 			Usage:     "list interfaces",
 			Flags: []cli.Flag{
-				 cli.StringFlag{
-					 Name: "vrouter",
-					 Destination: &vrouter,
-				 },
-			},
+				cli.BoolFlag{
+					Name: "long",
+					Destination: &long,
+				}},
 			Action: func(c *cli.Context) {
 				if c.NArg() != 1 {
 					log.Fatal("Wrong argument number!")
 				}
 				vrouter := c.Args()[0]
-				BuildItfPage(vrouter).Load(DescItf()).Short()
+				itfs := BuildItfPage(vrouter).Load(DescItf())
+				if long {
+					itfs.Long()
+				} else {
+					itfs.Short()
+				}
+				
 			},
 		},
 		{
