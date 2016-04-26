@@ -91,14 +91,11 @@ type Collection struct {
 
 type DescCol struct {
 	BaseXpath string;
-	ShortDetailXpath string;
-	LongDetailXpath []string;
 	DescElt DescElement;
 }
 
 type DescElement struct {
 	ShortDetailXpath string;
-//	LongDetailFunc (func (Element));
 	LongDetail LongAble;
 }
 
@@ -125,6 +122,13 @@ func (e Element) Short() {
 
 func (e Element) Long() {
 	e.desc.LongDetail.Long(e)
+}
+
+func (e Element) Xml() {
+	fmt.Printf("%s", e.node)
+}
+func (c Collection) Xml() {
+	fmt.Printf("%s", c.node)
 }
 
 
@@ -156,7 +160,6 @@ func BuildRouteFile(path string) File {
 func DescItf() DescCol {
 	return DescCol{
 		BaseXpath: "__ItfResp_list/ItfResp/itf_list/list",
-		ShortDetailXpath: "ItfSandeshData/name/text()",
 		DescElt: DescElement {
 			ShortDetailXpath: "name/text()",
 			LongDetail: LongXpaths([]string{"uuid/text()", "name/text()"}),
@@ -166,7 +169,6 @@ func DescItf() DescCol {
 func DescRoute() DescCol {
 	return DescCol{
 		BaseXpath: "__Inet4UcRouteResp_list/Inet4UcRouteResp/route_list/list",
-		ShortDetailXpath: "RouteUcSandeshData/src_ip/text()",
 		DescElt: DescElement {
 			ShortDetailXpath: "src_ip/text()",
 			LongDetail: LongFunc(routeDetail)},
@@ -175,7 +177,6 @@ func DescRoute() DescCol {
 func DescVrf() DescCol {
 	return DescCol{
 		BaseXpath: "//vrf_list/list",
-		ShortDetailXpath: "//name/text()",
 		DescElt: DescElement {
 			ShortDetailXpath: "name/text()",
 		},
@@ -249,12 +250,15 @@ func main() {
 				}
 				vrouter := c.Args()[0]
 				itfs := BuildItfPage(vrouter).Load(DescItf())
-				if long {
-					itfs.Long()
+				if showAsXml {
+					itfs.Xml()
 				} else {
-					itfs.Short()
+					if long {
+						itfs.Long()
+					} else {
+						itfs.Short()
+					}
 				}
-				
 			},
 		},
 		{
