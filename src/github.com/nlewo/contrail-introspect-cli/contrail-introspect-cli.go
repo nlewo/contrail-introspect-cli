@@ -5,6 +5,7 @@ import "os"
 import "net/http"
 import "io/ioutil"
 import "log"
+import "strings"
 
 import "github.com/moovweb/gokogiri"
 import "github.com/moovweb/gokogiri/xml"
@@ -182,7 +183,7 @@ func DescItf() DescCol {
 			ShortDetailXpath: "name/text()",
 			LongDetail: LongXpaths([]string{"uuid/text()", "name/text()"}),
 		},
-		PageArgs: []string{"vrouter"},
+		PageArgs: []string{"vrouter-fqdn"},
 		PageBuilder: func(args []string) LoadAble{
 			return Page{Table: "db.interface.0", VrouterUrl: args[0]}
 		},
@@ -190,7 +191,7 @@ func DescItf() DescCol {
 }
 func DescRoute() DescCol {
 	return DescCol{
-		PageArgs: []string{"vrouter", "vrf_name"},
+		PageArgs: []string{"vrouter-fqdn", "vrf-name"},
 		PageBuilder: func(args []string) LoadAble{
 			return Page{VrouterUrl: args[0], Table: args[1] + ".uc.route.0,"}
 		},
@@ -205,7 +206,7 @@ func DescRoute() DescCol {
 }
 func DescVrf() DescCol {
 	return DescCol{
-		PageArgs: []string{"vrouter"},
+		PageArgs: []string{"vrouter-fqdn"},
 		PageBuilder: func(args []string) LoadAble{
 			return Page{Table: "db.vrf.0", VrouterUrl: args[0]}
 		},
@@ -252,21 +253,23 @@ func GenCommand(descCol DescCol, name string, usage string) cli.Command {
 		Name: name,
 		Aliases: []string{"a"},
 		Usage: usage,
-		ArgsUsage: fmt.Sprintf("%s\n", descCol.PageArgs),
+		ArgsUsage: fmt.Sprintf("%s\n", strings.Join(descCol.PageArgs, " ")),
 		Flags: []cli.Flag{
 			cli.BoolFlag{
 				Name: "long, l",
+				Usage: "Long version format",
 			},
 			cli.BoolFlag{
 				Name: "xml, x",
+				Usage: "XML output format",
 			},
 			cli.BoolFlag{
 				Name: "from-file",
-				Usage: "Use a file instead of loading data from URL",
+				Usage: "Load file instead URL (for debugging)",
 			},
 			cli.StringFlag{
 				Name: "search, s",
-				Usage: "Search string",
+				Usage: "Search pattern",
 				Value: "",
 			},
 		},
@@ -276,7 +279,8 @@ func GenCommand(descCol DescCol, name string, usage string) cli.Command {
 				page = File{Path: c.Args()[0]}
 			} else {
 				if c.NArg() < len(descCol.PageArgs) {
-					log.Fatal("Wrong argument number!")
+					cli.ShowSubcommandHelp(c)
+					os.Exit(1)
 				}
 				page = descCol.PageBuilder(c.Args())
 			}
@@ -303,25 +307,20 @@ func GenCommand(descCol DescCol, name string, usage string) cli.Command {
 }
 
 func main() {
-	var showAsXml bool;
 	var count bool;
 
 	app := cli.NewApp()
 	app.Name = "contrail-introspect-cli"
-	app.Usage = "CLI on contrail introspects"
-	app.Flags = []cli.Flag{
-		cli.BoolFlag{
-			Name: "format-xml",
-			Destination: &showAsXml,
-		},
-	}
+	app.Usage = "CLI on ContraiL Introspects"
+	app.Version= "0.0.1"
 	app.Commands = []cli.Command{
-		GenCommand(DescRoute(), "route", "Get route information"),
-		GenCommand(DescItf(), "itf", "Get interface information"),
-		GenCommand(DescVrf(), "vrf", "Get vrf information"),
+		GenCommand(DescRoute(), "route", "Show routes"),
+		GenCommand(DescItf(), "itf", "Show interfaces"),
+		GenCommand(DescVrf(), "vrf", "Show vrfs"),
 		{
 			Name:      "multiple",
-			Usage:     "vrouter vrf_name",
+			Usage:     "List routes with multiple nexthops",
+			ArgsUsage: "vrouter vrf_name",
 			Flags: []cli.Flag{
 				cli.BoolFlag{
 					Name: "count",
