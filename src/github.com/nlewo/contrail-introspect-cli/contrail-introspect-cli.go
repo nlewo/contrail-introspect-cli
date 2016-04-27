@@ -211,6 +211,7 @@ func routeDetail(e Element) {
 	srcIp, _ := e.node.Search("src_ip/text()")
 	fmt.Printf("%s\n", srcIp[0])
 	paths, _ := e.node.Search("path_list/list/PathSandeshData")
+	fmt.Printf("  Dest_ip ; Peers ; Label ; Itfs\n")
 	for _, path := range paths {
 		nhs, _ := path.Search("nh/NhSandeshData//dip/text()")
 		peers, _ := path.Search("peer/text()")
