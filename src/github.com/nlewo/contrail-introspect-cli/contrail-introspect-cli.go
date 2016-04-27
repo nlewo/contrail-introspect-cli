@@ -11,7 +11,6 @@ import "github.com/moovweb/gokogiri/xml"
 import "github.com/moovweb/gokogiri/xpath"
 import "github.com/codegangsta/cli"
 
-
 func load(url string, fromFile bool) *xml.XmlDocument{
 	var data []byte
 	if fromFile{
@@ -61,6 +60,9 @@ type LoadAble interface {
 func fromDataToCollection(data []byte, descCol DescCol) Collection {
 	doc, _ := gokogiri.ParseXml(data)
 	ss, _ := doc.Search(descCol.BaseXpath)
+	if len(ss) < 1 {
+		log.Fatal(fmt.Sprintf("%d Failed to search xpath '%s'", len(ss), descCol.BaseXpath))
+	}
 	col := Collection{node: ss[0], descCol: descCol}
 	col.Init()
 	return col
@@ -90,8 +92,11 @@ type Collection struct {
 }
 
 type DescCol struct {
+	PageArgs []string;
+	PageBuilder (func([]string) LoadAble);
 	BaseXpath string;
 	DescElt DescElement;
+	SearchXpath (func(string) string);
 }
 
 type DescElement struct {
@@ -112,6 +117,36 @@ func (col *Collection) Init() {
 	}
 }
 
+func (col *Collection) Search(pattern string) Elements{
+	ss, _ := col.node.Search(col.descCol.SearchXpath(pattern))
+	var elements []Element = make([]Element, len(ss))
+	for i, s := range ss {
+		elements[i] = Element{node: s, desc: col.descCol.DescElt}
+	}
+	return Elements(elements)
+}
+
+type Show interface {
+	Long()
+	Short()
+	Xml()
+}
+
+type Elements []Element
+
+func (e Element) Xml() {
+	fmt.Printf("%s", e.node)
+}
+func (elts Elements) Xml() {
+	for _, e := range elts {
+		e.Xml()
+	}
+}
+func (c Collection) Xml() {
+	fmt.Printf("%s", c.node)
+}
+
+
 func (e Element) Short() {
 	s, _ := e.node.Search(e.desc.ShortDetailXpath)
 	if len(s) != 1 {
@@ -119,42 +154,25 @@ func (e Element) Short() {
 	}
 	fmt.Printf("%s\n", s[0])
 }
-
-func (e Element) Long() {
-	e.desc.LongDetail.Long(e)
-}
-
-func (e Element) Xml() {
-	fmt.Printf("%s", e.node)
-}
-func (c Collection) Xml() {
-	fmt.Printf("%s", c.node)
-}
-
-
 func (col Collection) Short() {
-	for _, e := range col.elements {
+	Elements(col.elements).Short()
+}
+func (elts Elements) Short() {
+	for _, e := range elts {
 		e.Short()
 	}
 }
+func (e Element) Long() {
+	e.desc.LongDetail.Long(e)
+}
 func (col Collection) Long() {
-	for _, e := range col.elements {
+	Elements(col.elements).Long()
+}
+func (elts Elements) Long() {
+	for _, e := range elts {
 		e.Long()
 		fmt.Printf("\n")
 	}
-}
-
-func BuildItfPage(vrouter string) Page {
-	return Page{Table: "db.interface.0", VrouterUrl: vrouter}
-}
-func BuildVrfPage(vrouter string) Page {
-	return Page{Table: "db.vrf.0", VrouterUrl: vrouter}
-}
-func BuildRoutePage(vrouter string, vrfName string) Page {
-	return Page{Table: vrfName + ".uc.route.0,", VrouterUrl: vrouter}
-}
-func BuildRouteFile(path string) File {
-	return File{Path: path}
 }
 
 func DescItf() DescCol {
@@ -164,21 +182,37 @@ func DescItf() DescCol {
 			ShortDetailXpath: "name/text()",
 			LongDetail: LongXpaths([]string{"uuid/text()", "name/text()"}),
 		},
+		PageArgs: []string{"vrouter"},
+		PageBuilder: func(args []string) LoadAble{
+			return Page{Table: "db.interface.0", VrouterUrl: args[0]}
+		},
 	}
 }
 func DescRoute() DescCol {
 	return DescCol{
+		PageArgs: []string{"vrouter", "vrf_name"},
+		PageBuilder: func(args []string) LoadAble{
+			return Page{VrouterUrl: args[0], Table: args[1] + ".uc.route.0,"}
+		},
 		BaseXpath: "__Inet4UcRouteResp_list/Inet4UcRouteResp/route_list/list",
 		DescElt: DescElement {
 			ShortDetailXpath: "src_ip/text()",
 			LongDetail: LongFunc(routeDetail)},
+		SearchXpath: func(pattern string) string {
+			return "RouteUcSandeshData/src_ip[contains(text(),'" + pattern + "')]/.."
+		},
 	}
 }
 func DescVrf() DescCol {
 	return DescCol{
-		BaseXpath: "//vrf_list/list",
+		PageArgs: []string{"vrouter"},
+		PageBuilder: func(args []string) LoadAble{
+			return Page{Table: "db.vrf.0", VrouterUrl: args[0]}
+		},
+		BaseXpath: "__VrfListResp_list/VrfListResp/vrf_list/list",
 		DescElt: DescElement {
 			ShortDetailXpath: "name/text()",
+			LongDetail: LongXpaths([]string{"name/text()"}),
 		},
 	}
 }
@@ -199,14 +233,6 @@ func (xpaths LongXpaths) Long(e Element) {
 	}
 }
 
-func routeGet(c Collection, srcIp string) xml.Node {
- 	route, _ := c.node.Search("RouteUcSandeshData/src_ip[text()='" + srcIp + "']/..")
-	if len(route) == 0 {
-		log.Fatal("Route to " + srcIp + " was not found")
-	}
-	return route[0]
-}
-
 func routeDetail(e Element) {
 	srcIp, _ := e.node.Search("src_ip/text()")
 	fmt.Printf("%s\n", srcIp[0])
@@ -221,10 +247,64 @@ func routeDetail(e Element) {
 	}
 }
 
+func GenCommand(descCol DescCol, name string, usage string) cli.Command {
+	return cli.Command{
+		Name: name,
+		Aliases: []string{"a"},
+		Usage: usage,
+		ArgsUsage: fmt.Sprintf("%s\n", descCol.PageArgs),
+		Flags: []cli.Flag{
+			cli.BoolFlag{
+				Name: "long, l",
+			},
+			cli.BoolFlag{
+				Name: "xml, x",
+			},
+			cli.BoolFlag{
+				Name: "from-file",
+				Usage: "Use a file instead of loading data from URL",
+			},
+			cli.StringFlag{
+				Name: "search, s",
+				Usage: "Search string",
+				Value: "",
+			},
+		},
+		Action: func(c *cli.Context) {
+			var page LoadAble;
+			if c.IsSet("from-file") {
+				page = File{Path: c.Args()[0]}
+			} else {
+				if c.NArg() < len(descCol.PageArgs) {
+					log.Fatal("Wrong argument number!")
+				}
+				page = descCol.PageBuilder(c.Args())
+			}
+			col := page.Load(descCol)
+			var list Show;
+
+			if c.String("s") != "" {
+				list = col.Search(c.String("s"))
+			} else {
+				list = col
+			}
+
+			if c.IsSet("xml") {
+				list.Xml()
+				return
+			}
+			if c.IsSet("long") {
+				list.Long()
+				return
+			}
+			list.Short()
+		},
+	}
+}
+
 func main() {
 	var showAsXml bool;
 	var count bool;
-	var long bool;
 
 	app := cli.NewApp()
 	app.Name = "contrail-introspect-cli"
@@ -236,32 +316,9 @@ func main() {
 		},
 	}
 	app.Commands = []cli.Command{
-		{
-			Name:      "itf",
-			Aliases:     []string{"a"},
-			Usage:     "list interfaces",
-			Flags: []cli.Flag{
-				cli.BoolFlag{
-					Name: "long",
-					Destination: &long,
-				}},
-			Action: func(c *cli.Context) {
-				if c.NArg() != 1 {
-					log.Fatal("Wrong argument number!")
-				}
-				vrouter := c.Args()[0]
-				itfs := BuildItfPage(vrouter).Load(DescItf())
-				if showAsXml {
-					itfs.Xml()
-				} else {
-					if long {
-						itfs.Long()
-					} else {
-						itfs.Short()
-					}
-				}
-			},
-		},
+		GenCommand(DescRoute(), "route", "Get route information"),
+		GenCommand(DescItf(), "itf", "Get interface information"),
+		GenCommand(DescVrf(), "vrf", "Get vrf information"),
 		{
 			Name:      "multiple",
 			Usage:     "vrouter vrf_name",
@@ -277,59 +334,6 @@ func main() {
 				vrouter := c.Args()[0]
 				vrf_name := c.Args()[1]
 				multiple(vrouter, vrf_name, count)
-			},
-		},
-		{
-			Name:      "vrf",
-			Usage:     "vrf <vrouterUrl>",
-			Action: func(c *cli.Context) {
-				if c.NArg() != 1 {
-					log.Fatal("Wrong argument number!")
-				}
-				BuildVrfPage(c.Args()[0]).Load(DescVrf()).Short()
-			},
-		},
-		{
-			Name:      "route",
-			Usage:     "route <vrouterUrl> <vrfName> [<srcIp>]",
-			Action: func(c *cli.Context) {
-				col := BuildRoutePage(c.Args()[0], c.Args()[1]).Load(DescRoute())
-				switch c.NArg() {
-				case 2:
-					if showAsXml {
-						fmt.Printf("%s\n", col.node)
-						return
-					}
-					col.Short()
-				case 3:
-					route := routeGet(col, c.Args()[2])
-					if showAsXml {
-						fmt.Printf("%s\n", route)
-						return
-					}
-					routeDetail(Element{node: route})
-				}
-			},
-		},
-		{
-			Name:      "route-from-file",
-			Action: func(c *cli.Context) {
-				col := BuildRouteFile(c.Args()[0]).Load(DescRoute())
-				switch c.NArg() {
-				case 1:
-					if showAsXml {
-						fmt.Printf("%s\n", col.node)
-						return
-					}
-					col.Short()
-				case 2:
-					route := routeGet(col, c.Args()[1])
-					if showAsXml {
-						fmt.Printf("%s\n", route)
-						return
-					}
-					routeDetail(Element{node: route})
-				}
 			},
 		},
 	}
