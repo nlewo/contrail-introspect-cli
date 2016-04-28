@@ -216,6 +216,9 @@ func DescVrf() DescCol {
 			ShortDetailXpath: "name/text()",
 			LongDetail: LongXpaths([]string{"name/text()"}),
 		},
+		SearchXpath: func(pattern string) string {
+			return "VrfSandeshData/name[contains(text(),'" + pattern + "')]/.."
+		},
 	}
 }
 
