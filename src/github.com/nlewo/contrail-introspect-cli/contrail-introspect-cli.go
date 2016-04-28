@@ -58,13 +58,13 @@ type LoadAble interface {
 }
 
 // Parse data to XML
-func fromDataToCollection(data []byte, descCol DescCol) Collection {
+func fromDataToCollection(data []byte, descCol DescCol, url string) Collection {
 	doc, _ := gokogiri.ParseXml(data)
 	ss, _ := doc.Search(descCol.BaseXpath)
 	if len(ss) < 1 {
 		log.Fatal(fmt.Sprintf("%d Failed to search xpath '%s'", len(ss), descCol.BaseXpath))
 	}
-	col := Collection{node: ss[0], descCol: descCol}
+	col := Collection{node: ss[0], descCol: descCol, url: url}
 	col.Init()
 	return col
 }
@@ -72,7 +72,7 @@ func fromDataToCollection(data []byte, descCol DescCol) Collection {
 func (file File) Load(descCol DescCol) Collection {
 	f, _ := os.Open(file.Path)
 	data, _ := ioutil.ReadAll(f)
-	return fromDataToCollection(data, descCol)
+	return fromDataToCollection(data, descCol, "file://" + file.Path)
 }
 
 func (page Page) Load(descCol DescCol) Collection {
@@ -82,10 +82,11 @@ func (page Page) Load(descCol DescCol) Collection {
 		log.Fatal(err)
 	}
 	data, _ := ioutil.ReadAll(resp.Body)
-	return fromDataToCollection(data, descCol)
+	return fromDataToCollection(data, descCol, url)
 }
 
 type Collection struct {
+	url string;
 	descCol DescCol;
 	doc *xml.XmlDocument;
 	node xml.Node;
@@ -267,6 +268,10 @@ func GenCommand(descCol DescCol, name string, usage string) cli.Command {
 				Name: "from-file",
 				Usage: "Load file instead URL (for debugging)",
 			},
+			cli.BoolFlag{
+				Name: "url, u",
+				Usage: "Just show used URL",
+			},
 			cli.StringFlag{
 				Name: "search, s",
 				Usage: "Search pattern",
@@ -285,6 +290,11 @@ func GenCommand(descCol DescCol, name string, usage string) cli.Command {
 				page = descCol.PageBuilder(c.Args())
 			}
 			col := page.Load(descCol)
+			if c.IsSet("url") {
+				fmt.Println(col.url)
+				return
+			}
+
 			var list Show;
 
 			if c.String("s") != "" {
