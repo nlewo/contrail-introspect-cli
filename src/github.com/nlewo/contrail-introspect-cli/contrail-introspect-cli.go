@@ -6,11 +6,37 @@ import "net/http"
 import "io/ioutil"
 import "log"
 import "strings"
+import "bufio"
+import "sort"
 
 import "github.com/moovweb/gokogiri"
 import "github.com/moovweb/gokogiri/xml"
 import "github.com/moovweb/gokogiri/xpath"
 import "github.com/codegangsta/cli"
+
+// A map from IP to FQDN
+type Hosts map[string]string
+
+// Ok, it's a horrible hack... but I don't know yet how to propagated
+// this variable from Arguments to Printf!
+var hosts Hosts
+
+// Take a hosts file in the same format than /etc/hosts file.
+// Currently, the only two first elements are used.
+func LoadHostsFile(filepath string) Hosts {
+	file, err := os.Open(filepath)
+	if err != nil {
+		log.Fatal(err)
+	}
+	scanner := bufio.NewScanner(file)
+	m := make(Hosts)
+	for scanner.Scan() {
+		line := scanner.Text()
+		ips := strings.Split(line, " ")
+		m[ips[0]] = ips[1]
+	}
+	return m
+}
 
 func load(url string, fromFile bool) *xml.XmlDocument{
 	var data []byte
@@ -177,6 +203,8 @@ func (elts Elements) Long() {
 	}
 }
 
+
+
 func DescItf() DescCol {
 	return DescCol{
 		BaseXpath: "__ItfResp_list/ItfResp/itf_list/list",
@@ -238,12 +266,22 @@ func (xpaths LongXpaths) Long(e Element) {
 	}
 }
 
+func ResolveIp(ip string) string {
+	fqdn, ok := hosts[ip]
+	if ok {
+		return fqdn
+	} else {
+		return ip
+	}
+}
+
 func Pretty(nodes []xml.Node) string {
 	ret := make([]string, len(nodes))
 	for i, n := range nodes {
-		ret[i] = n.Content()
+		ret[i] = ResolveIp(n.Content())
 	}
-	return strings.Join(ret, ";")
+	sort.Strings(ret)
+	return strings.Join(ret, " ; ")
 }
 
 func routeDetail(e Element) {
@@ -328,12 +366,29 @@ func GenCommand(descCol DescCol, name string, usage string) cli.Command {
 }
 
 func main() {
-	var count bool;
+	hosts = LoadHostsFile("hosts")
 
+	var count bool;
+	var hosts_file string;
+	
 	app := cli.NewApp()
 	app.Name = "contrail-introspect-cli"
 	app.Usage = "CLI on ContraiL Introspects"
-	app.Version= "0.0.1"
+	app.Version = "0.0.1"
+	app.Before = func(c *cli.Context) error {
+		if c.GlobalIsSet("hosts") {
+			hosts = LoadHostsFile(c.GlobalString("hosts"))
+			return nil
+		}
+		hosts = LoadHostsFile("hosts")
+		return nil
+	}
+	app.Flags = []cli.Flag{
+		cli.StringFlag{
+			Name: "hosts",
+			Usage: "host file to do DNS resolution",
+			Destination: &hosts_file,
+		}}
 	app.Commands = []cli.Command{
 		GenCommand(DescRoute(), "route", "Show routes"),
 		GenCommand(DescItf(), "itf", "Show interfaces"),
