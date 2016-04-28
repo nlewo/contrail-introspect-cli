@@ -238,6 +238,14 @@ func (xpaths LongXpaths) Long(e Element) {
 	}
 }
 
+func Pretty(nodes []xml.Node) string {
+	ret := make([]string, len(nodes))
+	for i, n := range nodes {
+		ret[i] = n.Content()
+	}
+	return strings.Join(ret, ";")
+}
+
 func routeDetail(e Element) {
 	srcIp, _ := e.node.Search("src_ip/text()")
 	fmt.Printf("%s\n", srcIp[0])
@@ -248,7 +256,7 @@ func routeDetail(e Element) {
 		peers, _ := path.Search("peer/text()")
 		label, _ := path.Search("label/text()")
 		itf, _ := path.Search("nh/NhSandeshData/itf/text()")
-		fmt.Printf("  %s %s %s %s\n", nhs, peers, label, itf)
+		fmt.Printf("  %s %s %s %s\n", Pretty(nhs), Pretty(peers), Pretty(label), Pretty(itf))
 	}
 }
 
