@@ -13,6 +13,7 @@ import "github.com/moovweb/gokogiri"
 import "github.com/moovweb/gokogiri/xml"
 import "github.com/moovweb/gokogiri/xpath"
 import "github.com/codegangsta/cli"
+import "github.com/gosuri/uitable"
 
 // A map from IP to FQDN
 type Hosts map[string]string
@@ -284,16 +285,20 @@ func Pretty(nodes []xml.Node) string {
 
 func routeDetail(e Element) {
 	srcIp, _ := e.node.Search("src_ip/text()")
-	fmt.Printf("%s\n", srcIp[0])
+	fmt.Printf("Src %s\n", srcIp[0])
 	paths, _ := e.node.Search("path_list/list/PathSandeshData")
-	fmt.Printf("  Dest_ip ; Peers ; Label ; Itfs\n")
+
+	table := uitable.New()
+	table.MaxColWidth = 80
+	table.AddRow("    Dst", "Peers", "MPLS label", "Interface")
 	for _, path := range paths {
 		nhs, _ := path.Search("nh/NhSandeshData//dip/text()")
 		peers, _ := path.Search("peer/text()")
 		label, _ := path.Search("label/text()")
 		itf, _ := path.Search("nh/NhSandeshData/itf/text()")
-		fmt.Printf("  %s %s %s %s\n", Pretty(nhs), Pretty(peers), Pretty(label), Pretty(itf))
+		table.AddRow("    "+Pretty(nhs), Pretty(peers), Pretty(label), Pretty(itf))
 	}
+	fmt.Println(table)
 }
 
 func GenCommand(descCol DescCol, name string, usage string) cli.Command {
