@@ -208,7 +208,7 @@ func DescItf() DescCol {
 		BaseXpath: "__ItfResp_list/ItfResp/itf_list/list",
 		DescElt: DescElement{
 			ShortDetailXpath: "name/text()",
-			LongDetail:       LongXpaths([]string{"uuid/text()", "name/text()"}),
+			LongDetail:       LongXpaths([]string{"uuid/text()", "name/text()", "vrf_name/text()"}),
 		},
 		PageArgs: []string{"vrouter-fqdn"},
 		PageBuilder: func(args []string) LoadAble {
