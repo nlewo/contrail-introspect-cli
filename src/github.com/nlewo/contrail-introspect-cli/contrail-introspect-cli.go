@@ -369,8 +369,6 @@ func GenCommand(descCol DescCol, name string, usage string) cli.Command {
 }
 
 func main() {
-	hosts = LoadHostsFile("hosts")
-
 	var count bool
 	var hosts_file string
 
@@ -383,7 +381,6 @@ func main() {
 			hosts = LoadHostsFile(c.GlobalString("hosts"))
 			return nil
 		}
-		hosts = LoadHostsFile("hosts")
 		return nil
 	}
 	app.Flags = []cli.Flag{
