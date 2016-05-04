@@ -247,6 +247,22 @@ func DescVrf() DescCol {
 		},
 	}
 }
+func DescVn() DescCol {
+	return DescCol{
+		PageArgs: []string{"vrouter-fqdn"},
+		PageBuilder: func(args []string) LoadAble {
+			return Page{Table: "db.vn.0", VrouterUrl: args[0]}
+		},
+		BaseXpath: "__VnListResp_list/VnListResp/vn_list/list",
+		DescElt: DescElement{
+			ShortDetailXpath: "name/text()",
+			LongDetail:       LongXpaths([]string{"name/text()", "vrf_name/text()"}),
+		},
+		SearchXpath: func(pattern string) string {
+			return "VnSandeshData/name[contains(text(),'" + pattern + "')]/.."
+		},
+	}
+}
 
 type LongFunc (func(Element))
 type LongXpaths []string
@@ -394,6 +410,7 @@ func main() {
 		GenCommand(DescRoute(), "route", "Show routes"),
 		GenCommand(DescItf(), "itf", "Show interfaces"),
 		GenCommand(DescVrf(), "vrf", "Show vrfs"),
+		GenCommand(DescVn(), "vn", "Show virtual network"),
 		{
 			Name:      "multiple",
 			Usage:     "List routes with multiple nexthops",
