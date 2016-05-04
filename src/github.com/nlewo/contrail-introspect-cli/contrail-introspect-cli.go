@@ -290,13 +290,14 @@ func routeDetail(e Element) {
 
 	table := uitable.New()
 	table.MaxColWidth = 80
-	table.AddRow("    Dst", "Peers", "MPLS label", "Interface")
+	table.AddRow("    Dst", "Peers", "MPLS label", "Interface", "Dest VN")
 	for _, path := range paths {
 		nhs, _ := path.Search("nh/NhSandeshData//dip/text()")
 		peers, _ := path.Search("peer/text()")
 		label, _ := path.Search("label/text()")
+		destvn, _ := path.Search("dest_vn/text()")
 		itf, _ := path.Search("nh/NhSandeshData/itf/text()")
-		table.AddRow("    "+Pretty(nhs), Pretty(peers), Pretty(label), Pretty(itf))
+		table.AddRow("    "+Pretty(nhs), Pretty(peers), Pretty(label), Pretty(itf), Pretty(destvn))
 	}
 	fmt.Println(table)
 }
