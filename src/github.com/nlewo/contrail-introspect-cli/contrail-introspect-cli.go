@@ -47,6 +47,7 @@ func DescRoute() DescCol {
 		DescElt: DescElement{
 			ShortDetailXpath: "src_ip/text()",
 			LongDetail:       LongFunc(routeDetail)},
+		SearchAttribute: "source IP",
 		SearchXpath: func(pattern string) string {
 			return "RouteUcSandeshData/src_ip[contains(text(),'" + pattern + "')]/.."
 		},
@@ -63,6 +64,7 @@ func DescVrf() DescCol {
 			ShortDetailXpath: "name/text()",
 			LongDetail:       LongXpaths([]string{"name/text()"}),
 		},
+		SearchAttribute: "name",
 		SearchXpath: func(pattern string) string {
 			return "VrfSandeshData/name[contains(text(),'" + pattern + "')]/.."
 		},
@@ -79,6 +81,7 @@ func DescVn() DescCol {
 			ShortDetailXpath: "name/text()",
 			LongDetail:       LongXpaths([]string{"name/text()", "vrf_name/text()"}),
 		},
+		SearchAttribute: "name",
 		SearchXpath: func(pattern string) string {
 			return "VnSandeshData/name[contains(text(),'" + pattern + "')]/.."
 		},

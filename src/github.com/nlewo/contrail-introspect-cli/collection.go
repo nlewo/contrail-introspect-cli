@@ -18,6 +18,7 @@ type DescCol struct {
 	PageBuilder (func([]string) Sourcer)
 	BaseXpath   string
 	DescElt     DescElement
+	SearchAttribute string
 	SearchXpath (func(string) string)
 }
 

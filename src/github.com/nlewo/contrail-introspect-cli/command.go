@@ -31,7 +31,7 @@ func GenCommand(descCol DescCol, name string, usage string) cli.Command {
 			},
 			cli.StringFlag{
 				Name:  "search, s",
-				Usage: "Search pattern",
+				Usage: fmt.Sprintf("Search by %s", descCol.SearchAttribute),
 				Value: "",
 			},
 		},
