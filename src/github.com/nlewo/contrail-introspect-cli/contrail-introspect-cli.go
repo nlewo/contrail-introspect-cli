@@ -114,7 +114,7 @@ func main() {
 	app := cli.NewApp()
 	app.Name = "contrail-introspect-cli"
 	app.Usage = "CLI on ContraiL Introspects"
-	app.Version = "0.0.1"
+	app.Version = "0.0.2"
 	app.Before = func(c *cli.Context) error {
 		if c.GlobalIsSet("hosts") {
 			hosts = LoadHostsFile(c.GlobalString("hosts"))
