@@ -35,6 +35,10 @@ func DescItf() DescCol {
 		PageBuilder: func(args []string) Sourcer {
 			return Remote{Table: "db.interface.0", VrouterUrl: args[0]}
 		},
+		SearchAttribute: "name",
+		SearchXpath: func(pattern string) string {
+			return "ItfSandeshData/name[contains(text(),'" + pattern + "')]/.."
+		},
 	}
 }
 func DescRoute() DescCol {
