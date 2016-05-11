@@ -15,7 +15,7 @@ func GenCommand(descCol DescCol, name string, usage string) cli.Command {
 		Flags: []cli.Flag{
 			cli.BoolFlag{
 				Name:  "long, l",
-				Usage: "Long version format",
+				Usage: "Long format",
 			},
 			cli.BoolFlag{
 				Name:  "xml, x",
@@ -23,11 +23,11 @@ func GenCommand(descCol DescCol, name string, usage string) cli.Command {
 			},
 			cli.BoolFlag{
 				Name:  "from-file",
-				Usage: "Load file instead URL (for debugging)",
+				Usage: "Load file instead of URL (for debugging)",
 			},
 			cli.BoolFlag{
 				Name:  "url, u",
-				Usage: "Just show used URL",
+				Usage: "Just show URL",
 			},
 			cli.StringFlag{
 				Name:  "search, s",
