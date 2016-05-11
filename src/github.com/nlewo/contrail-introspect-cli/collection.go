@@ -33,7 +33,7 @@ type Element struct {
 }
 
 func (col *Collection) Init() {
-	ss, _ := col.node.Search("*")
+	ss, _ := col.node.Search(col.descCol.BaseXpath + "/*")
 	col.elements = make([]Element, len(ss))
 	for i, s := range ss {
 		col.elements[i] = Element{node: s, desc: col.descCol.DescElt}
@@ -41,7 +41,7 @@ func (col *Collection) Init() {
 }
 
 func (col *Collection) Search(pattern string) Elements {
-	ss, _ := col.node.Search(col.descCol.SearchXpath(pattern))
+	ss, _ := col.node.Search(col.descCol.BaseXpath + "/" + col.descCol.SearchXpath(pattern))
 	var elements []Element = make([]Element, len(ss))
 	for i, s := range ss {
 		elements[i] = Element{node: s, desc: col.descCol.DescElt}

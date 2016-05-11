@@ -41,7 +41,7 @@ func load(url string, fromFile bool) *xml.XmlDocument {
 // Parse data to XML
 func fromDataToCollection(data []byte, descCol DescCol, url string) Collection {
 	doc, _ := gokogiri.ParseXml(data)
-	ss, _ := doc.Search(descCol.BaseXpath)
+	ss, _ := doc.Search("/")
 	if len(ss) < 1 {
 		log.Fatal(fmt.Sprintf("%d Failed to search xpath '%s'", len(ss), descCol.BaseXpath))
 	}
