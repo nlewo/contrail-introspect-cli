@@ -24,6 +24,21 @@ func multiple(vrouter string, vrf_name string, count bool) {
 	}
 }
 
+func DescPeering() DescCol {
+	return DescCol{
+		PageArgs: []string{"vrouter-fqdn"},
+		BaseXpath: "AgentXmppConnectionStatus/peer/list",
+		PageBuilder: func(args []string) Sourcer {
+			return Webui{Path: "Snh_AgentXmppConnectionStatusReq", VrouterUrl: args[0]}
+		},
+		DescElt: DescElement{
+			ShortDetailXpath: "controller_ip/text()",
+			LongDetail:       LongXpaths([]string{"controller_ip/text()", "state/text()", "flap_count/text()"}),
+		},
+	}
+}
+
+
 func DescItf() DescCol {
 	return DescCol{
 		BaseXpath: "__ItfResp_list/ItfResp/itf_list/list",
@@ -136,6 +151,7 @@ func main() {
 		GenCommand(DescRoute(), "route", "Show routes"),
 		GenCommand(DescItf(), "itf", "Show interfaces"),
 		GenCommand(DescVrf(), "vrf", "Show vrfs"),
+		GenCommand(DescPeering(), "peering", "Peering with controller"),
 		GenCommand(DescVn(), "vn", "Show virtual network"),
 		{
 			Name:      "multiple",
