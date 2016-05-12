@@ -14,6 +14,11 @@ type Remote struct {
 	Table      string
 }
 
+type Webui struct {
+	VrouterUrl string
+	Path      string
+}
+
 type File struct {
 	Path string
 }
@@ -58,6 +63,16 @@ func (file File) Load(descCol DescCol) Collection {
 
 func (page Remote) Load(descCol DescCol) Collection {
 	url := "http://" + page.VrouterUrl + ":8085/Snh_PageReq?x=begin:-1,end:-1,table:" + page.Table + ","
+	resp, err := http.Get(url)
+	if err != nil {
+		log.Fatal(err)
+	}
+	data, _ := ioutil.ReadAll(resp.Body)
+	return fromDataToCollection(data, descCol, url)
+}
+
+func (page Webui) Load(descCol DescCol) Collection {
+	url := "http://" + page.VrouterUrl + ":8085/" + page.Path
 	resp, err := http.Get(url)
 	if err != nil {
 		log.Fatal(err)
