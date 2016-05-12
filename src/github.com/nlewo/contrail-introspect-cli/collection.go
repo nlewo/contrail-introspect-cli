@@ -72,7 +72,7 @@ func (c Collection) Xml() {
 func (e Element) Short() {
 	s, _ := e.node.Search(e.desc.ShortDetailXpath)
 	if len(s) != 1 {
-		log.Fatal("Xpath '" + e.desc.ShortDetailXpath + "' is not valid")
+		log.Fatal("Xpath '" + e.desc.ShortDetailXpath + "' is not valid (verify ShortDetailXpath)")
 	}
 	fmt.Printf("%s\n", s[0])
 }
