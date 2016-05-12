@@ -24,7 +24,7 @@ type File struct {
 }
 
 type Sourcer interface {
-	Load(descCol DescCol) Collection
+	Load(descCol DescCollection) Collection
 }
 
 func load(url string, fromFile bool) *xml.XmlDocument {
@@ -44,7 +44,7 @@ func load(url string, fromFile bool) *xml.XmlDocument {
 }
 
 // Parse data to XML
-func fromDataToCollection(data []byte, descCol DescCol, url string) Collection {
+func fromDataToCollection(data []byte, descCol DescCollection, url string) Collection {
 	doc, _ := gokogiri.ParseXml(data)
 	ss, _ := doc.Search("/")
 	if len(ss) < 1 {
@@ -55,13 +55,13 @@ func fromDataToCollection(data []byte, descCol DescCol, url string) Collection {
 	return col
 }
 
-func (file File) Load(descCol DescCol) Collection {
+func (file File) Load(descCol DescCollection) Collection {
 	f, _ := os.Open(file.Path)
 	data, _ := ioutil.ReadAll(f)
 	return fromDataToCollection(data, descCol, "file://"+file.Path)
 }
 
-func (page Remote) Load(descCol DescCol) Collection {
+func (page Remote) Load(descCol DescCollection) Collection {
 	url := "http://" + page.VrouterUrl + ":8085/Snh_PageReq?x=begin:-1,end:-1,table:" + page.Table + ","
 	resp, err := http.Get(url)
 	if err != nil {
@@ -71,7 +71,7 @@ func (page Remote) Load(descCol DescCol) Collection {
 	return fromDataToCollection(data, descCol, url)
 }
 
-func (page Webui) Load(descCol DescCol) Collection {
+func (page Webui) Load(descCol DescCollection) Collection {
 	url := "http://" + page.VrouterUrl + ":8085/" + page.Path
 	resp, err := http.Get(url)
 	if err != nil {

@@ -6,7 +6,7 @@ import "strings"
 
 import "github.com/codegangsta/cli"
 
-func GenCommand(descCol DescCol, name string, usage string) cli.Command {
+func GenCommand(descCol DescCollection, name string, usage string) cli.Command {
 	return cli.Command{
 		Name:      name,
 		Aliases:   []string{"a"},
@@ -52,7 +52,7 @@ func GenCommand(descCol DescCol, name string, usage string) cli.Command {
 				return
 			}
 
-			var list Show
+			var list Shower
 
 			if c.String("s") != "" {
 				list = col.Search(c.String("s"))

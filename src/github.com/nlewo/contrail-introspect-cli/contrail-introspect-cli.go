@@ -25,8 +25,8 @@ func multiple(vrouter string, vrf_name string, count bool) {
 	}
 }
 
-func DescPeering() DescCol {
-	return DescCol{
+func DescPeering() DescCollection {
+	return DescCollection{
 		PageArgs: []string{"vrouter-fqdn"},
 		BaseXpath: "AgentXmppConnectionStatus/peer/list",
 		PageBuilder: func(args []string) Sourcer {
@@ -34,18 +34,17 @@ func DescPeering() DescCol {
 		},
 		DescElt: DescElement{
 			ShortDetailXpath: "controller_ip/text()",
-			LongDetail:       LongXpaths([]string{"controller_ip/text()", "state/text()", "flap_count/text()"}),
+			LongDetail:       LongFormatXpaths([]string{"controller_ip/text()", "state/text()", "flap_count/text()"}),
 		},
 	}
 }
 
-
-func DescItf() DescCol {
-	return DescCol{
+func DescItf() DescCollection {
+	return DescCollection{
 		BaseXpath: "__ItfResp_list/ItfResp/itf_list/list",
 		DescElt: DescElement{
 			ShortDetailXpath: "name/text()",
-			LongDetail:       LongXpaths([]string{"uuid/text()", "name/text()", "vrf_name/text()"}),
+			LongDetail:       LongFormatXpaths([]string{"uuid/text()", "name/text()", "vrf_name/text()"}),
 		},
 		PageArgs: []string{"vrouter-fqdn"},
 		PageBuilder: func(args []string) Sourcer {
@@ -57,8 +56,8 @@ func DescItf() DescCol {
 		},
 	}
 }
-func DescRoute() DescCol {
-	return DescCol{
+func DescRoute() DescCollection {
+	return DescCollection{
 		PageArgs: []string{"vrouter-fqdn", "vrf-name"},
 		PageBuilder: func(args []string) Sourcer {
 			return Remote{VrouterUrl: args[0], Table: args[1] + ".uc.route.0,"}
@@ -66,15 +65,15 @@ func DescRoute() DescCol {
 		BaseXpath: "__Inet4UcRouteResp_list/Inet4UcRouteResp/route_list/list",
 		DescElt: DescElement{
 			ShortDetailXpath: "src_ip/text()",
-			LongDetail:       LongFunc(routeDetail)},
+			LongDetail:       LongFormatFn(routeDetail)},
 		SearchAttribute: "source IP",
 		SearchXpath: func(pattern string) string {
 			return "RouteUcSandeshData/src_ip[contains(text(),'" + pattern + "')]/.."
 		},
 	}
 }
-func DescVrf() DescCol {
-	return DescCol{
+func DescVrf() DescCollection {
+	return DescCollection{
 		PageArgs: []string{"vrouter-fqdn"},
 		PageBuilder: func(args []string) Sourcer {
 			return Remote{Table: "db.vrf.0", VrouterUrl: args[0]}
@@ -82,7 +81,7 @@ func DescVrf() DescCol {
 		BaseXpath: "__VrfListResp_list/VrfListResp/vrf_list/list",
 		DescElt: DescElement{
 			ShortDetailXpath: "name/text()",
-			LongDetail:       LongXpaths([]string{"name/text()"}),
+			LongDetail:       LongFormatXpaths([]string{"name/text()"}),
 		},
 		SearchAttribute: "name",
 		SearchXpath: func(pattern string) string {
@@ -90,8 +89,8 @@ func DescVrf() DescCol {
 		},
 	}
 }
-func DescVn() DescCol {
-	return DescCol{
+func DescVn() DescCollection {
+	return DescCollection{
 		PageArgs: []string{"vrouter-fqdn"},
 		PageBuilder: func(args []string) Sourcer {
 			return Remote{Table: "db.vn.0", VrouterUrl: args[0]}
@@ -99,7 +98,7 @@ func DescVn() DescCol {
 		BaseXpath: "__VnListResp_list/VnListResp/vn_list/list",
 		DescElt: DescElement{
 			ShortDetailXpath: "name/text()",
-			LongDetail:       LongXpaths([]string{"name/text()", "vrf_name/text()"}),
+			LongDetail:       LongFormatXpaths([]string{"name/text()", "vrf_name/text()"}),
 		},
 		SearchAttribute: "name",
 		SearchXpath: func(pattern string) string {
@@ -108,8 +107,8 @@ func DescVn() DescCol {
 	}
 }
 
-func DescMpls() DescCol {
-	return DescCol{
+func DescMpls() DescCollection {
+	return DescCollection{
 		PageArgs: []string{"vrouter-fqdn"},
 		PageBuilder: func(args []string) Sourcer {
 			return Remote{Table: "db.mpls.0", VrouterUrl: args[0]}
@@ -117,7 +116,7 @@ func DescMpls() DescCol {
 		BaseXpath: "__MplsResp_list/MplsResp/mpls_list/list",
 		DescElt: DescElement{
 			ShortDetailXpath: "label/text()",
-			LongDetail:       LongFunc(mplsDetail),
+			LongDetail:       LongFormatFn(mplsDetail),
 		},
 		SearchAttribute: "name",
 		SearchXpath: func(pattern string) string {

@@ -1,3 +1,6 @@
+// An introspect page is mapped into a Collection which is basically a
+// list of Element.
+
 package main
 
 import "fmt"
@@ -5,31 +8,46 @@ import "log"
 
 import "github.com/moovweb/gokogiri/xml"
 
+// A Collection describes and contains a list of Elements.
 type Collection struct {
 	url      string
-	descCol  DescCol
+	descCol  DescCollection
 	doc      *xml.XmlDocument
 	node     xml.Node
 	elements []Element
 }
 
-type DescCol struct {
-	PageArgs    []string
-	PageBuilder (func([]string) Sourcer)
-	BaseXpath   string
-	DescElt     DescElement
-	SearchAttribute string
-	SearchXpath (func(string) string)
-}
-
-type DescElement struct {
-	ShortDetailXpath string
-	LongDetail       LongAble
-}
+type Elements []Element
 
 type Element struct {
 	node xml.Node
 	desc DescElement
+}
+
+// This contains informations to generate and query a Collection
+type DescCollection struct {
+	// Names of arguments required from the user to get datas from
+	// introspect
+	PageArgs    []string
+	// A function that takes the list of arguments specified by
+	// the user
+	PageBuilder (func([]string) Sourcer)
+	// The root Xpath
+	BaseXpath   string
+	// Description of Collection's Elements
+	DescElt     DescElement
+	// Name of the attribute used to search in the collection
+	SearchAttribute string
+	// A function that generate a Xpath based on the attribute
+	// provided by the user
+	SearchXpath (func(string) string)
+}
+
+type DescElement struct {
+	// Xpath used to generate the short version of an element
+	ShortDetailXpath string
+	// Used to generate the long version of an element
+	LongDetail       LongFormatter
 }
 
 func (col *Collection) Init() {
@@ -49,13 +67,12 @@ func (col *Collection) Search(pattern string) Elements {
 	return Elements(elements)
 }
 
-type Show interface {
+// Several representations of resources
+type Shower interface {
 	Long()
 	Short()
 	Xml()
 }
-
-type Elements []Element
 
 func (e Element) Xml() {
 	fmt.Printf("%s", e.node)
@@ -85,7 +102,7 @@ func (elts Elements) Short() {
 	}
 }
 func (e Element) Long() {
-	e.desc.LongDetail.Long(e)
+	e.desc.LongDetail.LongFormat(e)
 }
 func (col Collection) Long() {
 	Elements(col.elements).Long()
@@ -97,17 +114,18 @@ func (elts Elements) Long() {
 	}
 }
 
-type LongFunc (func(Element))
-type LongXpaths []string
-
-type LongAble interface {
-	Long(e Element)
+// This is used to show the long version of an Element.
+type LongFormatter interface {
+	LongFormat(e Element)
 }
 
-func (lf LongFunc) Long(e Element) {
-	lf(e)
+type LongFormatFn (func(Element))
+type LongFormatXpaths []string
+
+func (fn LongFormatFn) LongFormat(e Element) {
+	fn(e)
 }
-func (xpaths LongXpaths) Long(e Element) {
+func (xpaths LongFormatXpaths) LongFormat(e Element) {
 	for _, xpath := range xpaths {
 		s, _ := e.node.Search(xpath)
 		fmt.Printf("%s ", s[0])
