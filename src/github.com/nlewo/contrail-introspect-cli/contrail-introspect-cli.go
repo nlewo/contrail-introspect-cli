@@ -5,6 +5,7 @@ import "os"
 import "log"
 
 import "github.com/moovweb/gokogiri/xpath"
+import "github.com/moovweb/gokogiri/xml"
 import "github.com/codegangsta/cli"
 import "github.com/gosuri/uitable"
 
@@ -107,6 +108,24 @@ func DescVn() DescCol {
 	}
 }
 
+func DescMpls() DescCol {
+	return DescCol{
+		PageArgs: []string{"vrouter-fqdn"},
+		PageBuilder: func(args []string) Sourcer {
+			return Remote{Table: "db.mpls.0", VrouterUrl: args[0]}
+		},
+		BaseXpath: "__MplsResp_list/MplsResp/mpls_list/list",
+		DescElt: DescElement{
+			ShortDetailXpath: "label/text()",
+			LongDetail:       LongFunc(mplsDetail),
+		},
+		SearchAttribute: "name",
+		SearchXpath: func(pattern string) string {
+			return "MplsSandeshData/label[contains(text(),'" + pattern + "')]/.."
+		},
+	}
+}
+
 func routeDetail(e Element) {
 	srcIp, _ := e.node.Search("src_ip/text()")
 	fmt.Printf("Src %s\n", srcIp[0])
@@ -123,6 +142,21 @@ func routeDetail(e Element) {
 		itf, _ := path.Search("nh/NhSandeshData/itf/text()")
 		table.AddRow("    "+Pretty(nhs), Pretty(peers), Pretty(label), Pretty(itf), Pretty(destvn))
 	}
+	fmt.Println(table)
+}
+
+func mplsDetail(e Element) {
+	nexthopDetail(e.node)
+}
+
+func nexthopDetail(node xml.Node) {
+        table := uitable.New()
+	table.MaxColWidth = 80
+	table.AddRow("    Type", "Interface", "Nexthop index")
+	nhs, _ := node.Search("nh/NhSandeshData/type/text()")
+	itf, _ := node.Search("nh/NhSandeshData/itf/text()")
+	nhIdx, _ := node.Search("nh/NhSandeshData/nh_index/text()")
+	table.AddRow("    "+Pretty(nhs), Pretty(itf), Pretty(nhIdx))
 	fmt.Println(table)
 }
 
@@ -153,6 +187,7 @@ func main() {
 		GenCommand(DescVrf(), "vrf", "Show vrfs"),
 		GenCommand(DescPeering(), "peering", "Peering with controller"),
 		GenCommand(DescVn(), "vn", "Show virtual network"),
+		GenCommand(DescMpls(), "mpls", "Show mpls"),
 		{
 			Name:      "multiple",
 			Usage:     "List routes with multiple nexthops",
