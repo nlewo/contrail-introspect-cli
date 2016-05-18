@@ -34,7 +34,7 @@ func DescPeering() DescCollection {
 		},
 		DescElt: DescElement{
 			ShortDetailXpath: "controller_ip/text()",
-			LongDetail:       LongFormatXpaths([]string{"controller_ip/text()", "state/text()", "flap_count/text()"}),
+			LongDetail:       LongFormatXpaths([]string{"controller_ip", "state", "flap_count"}),
 		},
 	}
 }
@@ -44,7 +44,7 @@ func DescItf() DescCollection {
 		BaseXpath: "__ItfResp_list/ItfResp/itf_list/list",
 		DescElt: DescElement{
 			ShortDetailXpath: "name/text()",
-			LongDetail:       LongFormatXpaths([]string{"uuid/text()", "name/text()", "vrf_name/text()"}),
+			LongDetail:       LongFormatXpaths([]string{"uuid", "name", "vrf_name", "vm_uuid"}),
 		},
 		PageArgs: []string{"vrouter-fqdn"},
 		PageBuilder: func(args []string) Sourcer {
@@ -81,7 +81,7 @@ func DescVrf() DescCollection {
 		BaseXpath: "__VrfListResp_list/VrfListResp/vrf_list/list",
 		DescElt: DescElement{
 			ShortDetailXpath: "name/text()",
-			LongDetail:       LongFormatXpaths([]string{"name/text()"}),
+			LongDetail:       LongFormatXpaths([]string{"name"}),
 		},
 		SearchAttribute: "name",
 		SearchXpath: func(pattern string) string {
@@ -98,7 +98,7 @@ func DescVn() DescCollection {
 		BaseXpath: "__VnListResp_list/VnListResp/vn_list/list",
 		DescElt: DescElement{
 			ShortDetailXpath: "name/text()",
-			LongDetail:       LongFormatXpaths([]string{"name/text()", "vrf_name/text()"}),
+			LongDetail:       LongFormatXpaths([]string{"name", "vrf_name"}),
 		},
 		SearchAttribute: "name",
 		SearchXpath: func(pattern string) string {

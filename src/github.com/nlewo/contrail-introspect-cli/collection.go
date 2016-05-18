@@ -127,7 +127,7 @@ func (fn LongFormatFn) LongFormat(e Element) {
 }
 func (xpaths LongFormatXpaths) LongFormat(e Element) {
 	for _, xpath := range xpaths {
-		s, _ := e.node.Search(xpath)
+		s, _ := e.node.Search(xpath + "/text()")
 		if len(s) == 1 {
 			fmt.Printf("%s ", s[0])
 		}
