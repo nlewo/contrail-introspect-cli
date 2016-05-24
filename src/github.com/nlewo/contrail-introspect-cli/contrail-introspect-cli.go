@@ -34,7 +34,7 @@ func DescPeering() DescCollection {
 		},
 		DescElt: DescElement{
 			ShortDetailXpath: "controller_ip/text()",
-			LongDetail:       LongFormatXpaths([]string{"controller_ip", "state", "flap_count"}),
+			LongDetail:       LongFormatXpaths([]string{"controller_ip", "state", "flap_count", "cfg_controller"}),
 		},
 	}
 }
