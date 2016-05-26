@@ -37,10 +37,7 @@ type DescCollection struct {
 	// Description of Collection's Elements
 	DescElt     DescElement
 	// Name of the attribute used to search in the collection
-	SearchAttribute string
-	// A function that generate a Xpath based on the attribute
-	// provided by the user
-	SearchXpath (func(string) string)
+	PrimaryField string
 }
 
 type DescElement struct {
@@ -58,8 +55,25 @@ func (col *Collection) Init() {
 	}
 }
 
-func (col *Collection) Search(pattern string) Elements {
-	ss, _ := col.node.Search(col.descCol.BaseXpath + "/" + col.descCol.SearchXpath(pattern))
+
+func (col *Collection) SearchXpathFuzzy(pattern string) string{
+	return col.descCol.BaseXpath + "/*/" + col.descCol.PrimaryField + "[contains(text(),'" + pattern + "')]/.."
+}
+
+func (col *Collection) SearchXpathStrict(pattern string) string{
+	return col.descCol.BaseXpath + "/*/" + col.descCol.PrimaryField + "[text()='" + pattern + "']/.."
+}
+
+func (col *Collection) SearchFuzzy(pattern string) Elements {
+	return col.Search(col.SearchXpathFuzzy, pattern)
+}
+
+func (col *Collection) SearchStrict(pattern string) Elements {
+	return col.Search(col.SearchXpathStrict, pattern)
+}
+
+func (col *Collection) Search(searchPredicate (func(string) string), pattern string) Elements {
+	ss, _ := col.node.Search(searchPredicate(pattern))
 	var elements []Element = make([]Element, len(ss))
 	for i, s := range ss {
 		elements[i] = Element{node: s, desc: col.descCol.DescElt}

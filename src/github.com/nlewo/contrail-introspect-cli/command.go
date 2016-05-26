@@ -31,7 +31,7 @@ func GenCommand(descCol DescCollection, name string, usage string) cli.Command {
 			},
 			cli.StringFlag{
 				Name:  "search, s",
-				Usage: fmt.Sprintf("Search by %s", descCol.SearchAttribute),
+				Usage: fmt.Sprintf("Search by %s", descCol.PrimaryField),
 				Value: "",
 			},
 		},
@@ -55,7 +55,7 @@ func GenCommand(descCol DescCollection, name string, usage string) cli.Command {
 			var list Shower
 
 			if c.String("s") != "" {
-				list = col.Search(c.String("s"))
+				list = col.SearchFuzzy(c.String("s"))
 			} else {
 				list = col
 			}

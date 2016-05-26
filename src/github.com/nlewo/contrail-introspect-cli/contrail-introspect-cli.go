@@ -36,6 +36,7 @@ func DescPeering() DescCollection {
 			ShortDetailXpath: "controller_ip/text()",
 			LongDetail:       LongFormatXpaths([]string{"controller_ip", "state", "flap_count", "cfg_controller"}),
 		},
+		PrimaryField: "name",
 	}
 }
 
@@ -50,10 +51,7 @@ func DescItf() DescCollection {
 		PageBuilder: func(args []string) Sourcer {
 			return Remote{Table: "db.interface.0", VrouterUrl: args[0]}
 		},
-		SearchAttribute: "name",
-		SearchXpath: func(pattern string) string {
-			return "ItfSandeshData/name[contains(text(),'" + pattern + "')]/.."
-		},
+		PrimaryField: "name",
 	}
 }
 func DescRoute() DescCollection {
@@ -66,10 +64,7 @@ func DescRoute() DescCollection {
 		DescElt: DescElement{
 			ShortDetailXpath: "src_ip/text()",
 			LongDetail:       LongFormatFn(routeDetail)},
-		SearchAttribute: "source IP",
-		SearchXpath: func(pattern string) string {
-			return "RouteUcSandeshData/src_ip[contains(text(),'" + pattern + "')]/.."
-		},
+		PrimaryField: "src_ip",
 	}
 }
 func DescVrf() DescCollection {
@@ -83,10 +78,7 @@ func DescVrf() DescCollection {
 			ShortDetailXpath: "name/text()",
 			LongDetail:       LongFormatXpaths([]string{"name"}),
 		},
-		SearchAttribute: "name",
-		SearchXpath: func(pattern string) string {
-			return "VrfSandeshData/name[contains(text(),'" + pattern + "')]/.."
-		},
+		PrimaryField: "name",
 	}
 }
 func DescVn() DescCollection {
@@ -100,10 +92,7 @@ func DescVn() DescCollection {
 			ShortDetailXpath: "name/text()",
 			LongDetail:       LongFormatXpaths([]string{"name", "vrf_name"}),
 		},
-		SearchAttribute: "name",
-		SearchXpath: func(pattern string) string {
-			return "VnSandeshData/name[contains(text(),'" + pattern + "')]/.."
-		},
+		PrimaryField: "name",
 	}
 }
 
@@ -118,10 +107,7 @@ func DescMpls() DescCollection {
 			ShortDetailXpath: "label/text()",
 			LongDetail:       LongFormatFn(mplsDetail),
 		},
-		SearchAttribute: "name",
-		SearchXpath: func(pattern string) string {
-			return "MplsSandeshData/label[contains(text(),'" + pattern + "')]/.."
-		},
+		PrimaryField: "label",
 	}
 }
 
