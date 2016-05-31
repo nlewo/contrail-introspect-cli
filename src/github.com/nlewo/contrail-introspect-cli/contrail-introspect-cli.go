@@ -131,6 +131,7 @@ func routeDetail(e Element) {
 }
 
 func mplsDetail(e Element) {
+	fmt.Printf("Label: %s\n", e.GetField("label"))
 	nexthopDetail(e.node)
 }
 
