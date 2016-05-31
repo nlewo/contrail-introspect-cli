@@ -174,6 +174,7 @@ func main() {
 		GenCommand(DescPeering(), "peering", "Peering with controller"),
 		GenCommand(DescVn(), "vn", "Show virtual network"),
 		GenCommand(DescMpls(), "mpls", "Show mpls"),
+		Follow(),
 		{
 			Name:      "multiple",
 			Usage:     "List routes with multiple nexthops",
