@@ -88,6 +88,9 @@ func (e Element) GetField(field string) string {
 			log.Fatal(fmt.Sprintf("All fields values must be equal (values: %s)", s))
 		}
 	}
+	if len(s) < 1 {
+		log.Fatal(fmt.Sprintf("Field %s has not be found.", field))
+	}
 	return s[0].String()
 }
 
