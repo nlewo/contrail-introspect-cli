@@ -76,7 +76,7 @@ func DescVrf() DescCollection {
 		BaseXpath: "__VrfListResp_list/VrfListResp/vrf_list/list",
 		DescElt: DescElement{
 			ShortDetailXpath: "name/text()",
-			LongDetail:       LongFormatXpaths([]string{"name"}),
+			LongDetail:       LongFormatXpaths([]string{"name", "uc_index"}),
 		},
 		PrimaryField: "name",
 	}
