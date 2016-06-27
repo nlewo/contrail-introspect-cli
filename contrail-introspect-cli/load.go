@@ -11,11 +11,13 @@ import "github.com/moovweb/gokogiri/xml"
 
 type Remote struct {
 	VrouterUrl string
+	Port int
 	Table      string
 }
 
 type Webui struct {
 	VrouterUrl string
+	Port int
 	Path      string
 }
 
@@ -62,7 +64,7 @@ func (file File) Load(descCol DescCollection) Collection {
 }
 
 func (page Remote) Load(descCol DescCollection) Collection {
-	url := "http://" + page.VrouterUrl + ":8085/Snh_PageReq?x=begin:-1,end:-1,table:" + page.Table + ","
+	url := fmt.Sprintf("http://%s:%d/Snh_PageReq?x=begin:-1,end:-1,table:%s,", page.VrouterUrl, page.Port, page.Table)
 	resp, err := http.Get(url)
 	if err != nil {
 		log.Fatal(err)

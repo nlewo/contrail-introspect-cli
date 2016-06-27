@@ -30,7 +30,7 @@ func DescPeering() DescCollection {
 		PageArgs: []string{"vrouter-fqdn"},
 		BaseXpath: "AgentXmppConnectionStatus/peer/list",
 		PageBuilder: func(args []string) Sourcer {
-			return Webui{Path: "Snh_AgentXmppConnectionStatusReq", VrouterUrl: args[0]}
+			return Webui{Path: "Snh_AgentXmppConnectionStatusReq", VrouterUrl: args[0], Port: 8085}
 		},
 		DescElt: DescElement{
 			ShortDetailXpath: "controller_ip/text()",
@@ -49,7 +49,7 @@ func DescItf() DescCollection {
 		},
 		PageArgs: []string{"vrouter-fqdn"},
 		PageBuilder: func(args []string) Sourcer {
-			return Remote{Table: "db.interface.0", VrouterUrl: args[0]}
+			return Remote{Table: "db.interface.0", VrouterUrl: args[0], Port: 8085}
 		},
 		PrimaryField: "name",
 	}
@@ -58,7 +58,7 @@ func DescRoute() DescCollection {
 	return DescCollection{
 		PageArgs: []string{"vrouter-fqdn", "vrf-name"},
 		PageBuilder: func(args []string) Sourcer {
-			return Remote{VrouterUrl: args[0], Table: args[1] + ".uc.route.0,"}
+			return Remote{VrouterUrl: args[0], Table: args[1] + ".uc.route.0,", Port: 8085}
 		},
 		BaseXpath: "__Inet4UcRouteResp_list/Inet4UcRouteResp/route_list/list",
 		DescElt: DescElement{
@@ -71,7 +71,7 @@ func DescVrf() DescCollection {
 	return DescCollection{
 		PageArgs: []string{"vrouter-fqdn"},
 		PageBuilder: func(args []string) Sourcer {
-			return Remote{Table: "db.vrf.0", VrouterUrl: args[0]}
+			return Remote{Table: "db.vrf.0", VrouterUrl: args[0], Port: 8085}
 		},
 		BaseXpath: "__VrfListResp_list/VrfListResp/vrf_list/list",
 		DescElt: DescElement{
@@ -85,7 +85,7 @@ func DescVn() DescCollection {
 	return DescCollection{
 		PageArgs: []string{"vrouter-fqdn"},
 		PageBuilder: func(args []string) Sourcer {
-			return Remote{Table: "db.vn.0", VrouterUrl: args[0]}
+			return Remote{Table: "db.vn.0", VrouterUrl: args[0], Port: 8085}
 		},
 		BaseXpath: "__VnListResp_list/VnListResp/vn_list/list",
 		DescElt: DescElement{
@@ -100,7 +100,7 @@ func DescMpls() DescCollection {
 	return DescCollection{
 		PageArgs: []string{"vrouter-fqdn"},
 		PageBuilder: func(args []string) Sourcer {
-			return Remote{Table: "db.mpls.0", VrouterUrl: args[0]}
+			return Remote{Table: "db.mpls.0", VrouterUrl: args[0], Port: 8085}
 		},
 		BaseXpath: "__MplsResp_list/MplsResp/mpls_list/list",
 		DescElt: DescElement{
