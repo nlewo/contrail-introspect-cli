@@ -32,3 +32,14 @@ The `--hosts` option takes a `hosts` file to translate introspect IPs to DNS nam
     2. Go with MPLS label 129 to vrouter-2.example.com
     3. To interface tap2a452941-0b of vm d1bd1a84-b479-4897-a6c4-4dce7c4c8f4d
 ```
+
+- Get route details from a controller
+```
+	$ contrail-introspect-cli ctrl-route controller-1.example.com default-domain:openstack:public:public  -s 145 -l
+	Prefix 8.8.8.145/32
+	        Protocol	Nexthop      	Peers        	MPLS label
+	        XMPP    	d-ocnclc-002w	d-ocnclc-002w	18        
+	        BGP     	d-ocnclc-002w	d-octclc-0001	18        
+	        XMPP    	d-ocnclc-000r	d-ocnclc-000r	21        
+
+```

@@ -111,6 +111,21 @@ func DescRiSummary() DescCollection {
 	}
 }
 
+func DescCtrlRoute() DescCollection {
+	return DescCollection{
+		PageArgs: []string{"controller-fqdn", "vrf"},
+		PageBuilder: func(args []string) Sourcer {
+			path := fmt.Sprintf("Snh_ShowRouteReq?x=%s.inet.0", args[1])
+			return Webui{Path: path, VrouterUrl: args[0], Port: 8083}
+		},
+		BaseXpath: "ShowRouteResp/tables/list/ShowRouteTable/routes/list",
+		DescElt: DescElement{
+			ShortDetailXpath: "prefix/text()",
+			LongDetail:       LongFormatFn(controllerRoutePath),
+		},
+		PrimaryField: "prefix",
+	}
+}
 
 func DescMpls() DescCollection {
 	return DescCollection{
@@ -162,6 +177,24 @@ func nexthopDetail(node xml.Node) {
 	fmt.Println(table)
 }
 
+func controllerRoutePath(e Element) {
+	srcIp, _ := e.node.Search("prefix/text()")
+	fmt.Printf("Prefix %s\n", srcIp[0])
+	paths, _ := e.node.Search("paths/list/ShowRoutePath")
+
+	table := uitable.New()
+	table.MaxColWidth = 80
+	table.AddRow("    Protocol", "Nexthop", "Peers", "MPLS label")
+	for _, path := range paths {
+		protocol, _ := path.Search("protocol/text()")
+		nhs, _ := path.Search("next_hop/text()")
+		peers, _ := path.Search("source/text()")
+		label, _ := path.Search("label/text()")
+		table.AddRow("    "+Pretty(protocol), Pretty(nhs), Pretty(peers), Pretty(label))
+	}
+	fmt.Println(table)
+}
+
 func main() {
 	var count bool
 	var hosts_file string
@@ -192,6 +225,7 @@ func main() {
 		GenCommand(DescMpls(), "mpls", "Show mpls"),
 		Follow(),
 		GenCommand(DescRiSummary(), "ri-summary", "Show RI Summary"),
+		GenCommand(DescCtrlRoute(), "ctrl-route", "Show Route on Controller"),
 		{
 			Name:      "multiple",
 			Usage:     "List routes with multiple nexthops",
