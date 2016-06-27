@@ -45,16 +45,24 @@ func load(url string, fromFile bool) *xml.XmlDocument {
 	return (doc)
 }
 
-// Parse data to XML
-func fromDataToCollection(data []byte, descCol DescCollection, url string) Collection {
+func dataToXml(data []byte) xml.Node {
 	doc, _ := gokogiri.ParseXml(data)
 	ss, _ := doc.Search("/")
 	if len(ss) < 1 {
-		log.Fatal(fmt.Sprintf("%d Failed to search xpath '%s'", len(ss), descCol.BaseXpath))
+		log.Fatal("Failed to parse XML")
 	}
-	col := Collection{node: ss[0], descCol: descCol, url: url}
+	return ss[0]
+}
+
+func xmlToCollection(node xml.Node, descCol DescCollection, url string) Collection {
+	col := Collection{node: node, descCol: descCol, url: url}
 	col.Init()
 	return col
+}
+
+// Parse data to XML
+func fromDataToCollection(data []byte, descCol DescCollection, url string) Collection {
+	return xmlToCollection(dataToXml(data), descCol, url)
 }
 
 func (file File) Load(descCol DescCollection) Collection {
@@ -74,11 +82,42 @@ func (page Remote) Load(descCol DescCollection) Collection {
 }
 
 func (page Webui) Load(descCol DescCollection) Collection {
-	url := "http://" + page.VrouterUrl + ":8085/" + page.Path
+	url := fmt.Sprintf("http://%s:%d/%s", page.VrouterUrl, page.Port, page.Path)
+	var data []byte
+	var node xml.Node
+
 	resp, err := http.Get(url)
 	if err != nil {
 		log.Fatal(err)
 	}
-	data, _ := ioutil.ReadAll(resp.Body)
-	return fromDataToCollection(data, descCol, url)
+	data, _ = ioutil.ReadAll(resp.Body)
+	node = dataToXml(data)
+
+	// Handle controller pagination
+	//
+	// Since it is not possible to query controller introspect
+	// without pagination, we query it several time the controller
+	// to rebuild a xml containing all nodes.
+	currentNode := node
+	for {
+		if r, _ := currentNode.Search("/*/next_batch"); len(r) > 0 {
+			currentUrl := fmt.Sprintf("http://%s:%d/Snh_%s?x=%s", page.VrouterUrl, page.Port, r[0].Attribute("link"), r[0].Content())
+			resp, err := http.Get(currentUrl)
+			if err != nil {
+				log.Fatal(err)
+			}
+			data, _ = ioutil.ReadAll(resp.Body)
+			currentNode = dataToXml(data)
+			newLists, _ := currentNode.Search("/*/*/list")
+
+			for _, l := range newLists {
+				lists, _ := node.Search("/*/*/list")
+				lists[len(lists) - 1].InsertAfter(l)
+			}
+		} else {
+			break
+		}
+	}
+
+	return xmlToCollection(node, descCol, url)
 }
