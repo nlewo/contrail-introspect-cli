@@ -96,6 +96,22 @@ func DescVn() DescCollection {
 	}
 }
 
+func DescRiSummary() DescCollection {
+	return DescCollection{
+		PageArgs: []string{"controller-fqdn"},
+		PageBuilder: func(args []string) Sourcer {
+			return Webui{Path: "Snh_ShowRoutingInstanceSummaryReq?search_string=", VrouterUrl: args[0], Port: 8083}
+		},
+		BaseXpath: "ShowRoutingInstanceSummaryResp/instances/list",
+		DescElt: DescElement{
+			ShortDetailXpath: "name/text()",
+			LongDetail:       LongFormatXpaths([]string{"name"}),
+		},
+		PrimaryField: "name",
+	}
+}
+
+
 func DescMpls() DescCollection {
 	return DescCollection{
 		PageArgs: []string{"vrouter-fqdn"},
@@ -175,6 +191,7 @@ func main() {
 		GenCommand(DescVn(), "vn", "Show virtual network"),
 		GenCommand(DescMpls(), "mpls", "Show mpls"),
 		Follow(),
+		GenCommand(DescRiSummary(), "ri-summary", "Show RI Summary"),
 		{
 			Name:      "multiple",
 			Usage:     "List routes with multiple nexthops",
