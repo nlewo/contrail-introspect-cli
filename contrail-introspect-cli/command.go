@@ -9,7 +9,6 @@ import "github.com/codegangsta/cli"
 func GenCommand(descCol DescCollection, name string, usage string) cli.Command {
 	return cli.Command{
 		Name:      name,
-		Aliases:   []string{"a"},
 		Usage:     usage,
 		ArgsUsage: fmt.Sprintf("%s\n", strings.Join(descCol.PageArgs, " ")),
 		Flags: []cli.Flag{
