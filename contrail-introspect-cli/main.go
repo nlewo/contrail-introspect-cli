@@ -113,7 +113,7 @@ func DescRiSummary() DescCollection {
 
 func DescCtrlRoute() DescCollection {
 	return DescCollection{
-		PageArgs: []string{"controller-fqdn", "vrf"},
+		PageArgs: []string{"controller-fqdn", "routing-instance"},
 		PageBuilder: func(args []string) Sourcer {
 			path := fmt.Sprintf("Snh_ShowRouteReq?x=%s.inet.0", args[1])
 			return Webui{Path: path, VrouterUrl: args[0], Port: 8083}
@@ -218,15 +218,15 @@ func main() {
 			Destination: &hosts_file,
 		}}
 	app.Commands = []cli.Command{
-		GenCommand(DescRoute(), "agent-route", "Show routes"),
-		GenCommand(DescItf(), "agent-itf", "Show interfaces"),
-		GenCommand(DescVrf(), "agent-vrf", "Show vrfs"),
-		GenCommand(DescPeering(), "agent-peering", "Peering with controller"),
-		GenCommand(DescVn(), "agent-vn", "Show virtual network"),
-		GenCommand(DescMpls(), "agent-mpls", "Show mpls"),
+		GenCommand(DescRoute(), "agent-route", "Show routes on agent"),
+		GenCommand(DescItf(), "agent-itf", "Show interfaces on agent"),
+		GenCommand(DescVrf(), "agent-vrf", "Show vrfs on agent "),
+		GenCommand(DescPeering(), "agent-peering", "Peering with controller on agent"),
+		GenCommand(DescVn(), "agent-vn", "Show virtual networks on agent"),
+		GenCommand(DescMpls(), "agent-mpls", "Show mpls on agent"),
 		Follow(),
-		GenCommand(DescRiSummary(), "controller-ri", "Show RI Summary"),
-		GenCommand(DescCtrlRoute(), "controller-route", "Show Route on Controller"),
+		GenCommand(DescRiSummary(), "controller-ri", "Show routing instances on controller"),
+		GenCommand(DescCtrlRoute(), "controller-route", "Show routes on controller"),
 		{
 			Name:      "multiple",
 			Usage:     "List routes with multiple nexthops",
