@@ -184,13 +184,14 @@ func controllerRoutePath(e Element) {
 
 	table := uitable.New()
 	table.MaxColWidth = 80
-	table.AddRow("    Protocol", "Nexthop", "Peers", "MPLS label")
+	table.AddRow("    Protocol", "Nexthop", "Local Pref", "Peers", "MPLS label")
 	for _, path := range paths {
 		protocol, _ := path.Search("protocol/text()")
 		nhs, _ := path.Search("next_hop/text()")
 		peers, _ := path.Search("source/text()")
 		label, _ := path.Search("label/text()")
-		table.AddRow("    "+Pretty(protocol), Pretty(nhs), Pretty(peers), Pretty(label))
+		localPref, _ := path.Search("local_preference/text()")
+		table.AddRow("    "+Pretty(protocol), Pretty(nhs), Pretty(localPref), Pretty(peers), Pretty(label))
 	}
 	fmt.Println(table)
 }
