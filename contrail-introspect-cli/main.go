@@ -105,7 +105,7 @@ func DescRiSummary() DescCollection {
 		BaseXpath: "ShowRoutingInstanceSummaryResp/instances/list",
 		DescElt: DescElement{
 			ShortDetailXpath: "name/text()",
-			LongDetail:       LongFormatXpaths([]string{"name"}),
+			LongDetail:       LongFormatXpaths([]string{"name", "virtual_network"}),
 		},
 		PrimaryField: "name",
 	}
