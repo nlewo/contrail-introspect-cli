@@ -9,7 +9,7 @@ CLI on ContraiL Introspects
 
 - List interfaces
 ```
-    $ contrail-introspect-cli itf vrouter_fqdn -l
+    $ contrail-introspect-cli agent-itf vrouter_fqdn -l
     00000000-0000-0000-0000-000000000000 bond0.1002 default-domain:default-project:ip-fabric:__default__ 
     039b3555-e83d-480c-89d2-fb2cf767bf55 tap039b3555-e8 default-domain:default-project:network:network
     08893790-a8e2-4283-800000000-0000-0000-0000-000000000000 vhost0 default-domain:default-project:ip-fabric:__default__ 
@@ -17,7 +17,7 @@ CLI on ContraiL Introspects
 
 - Get nexthops for `192.168.1.5` in the vrf `net1`
 ```
-    $ contrail-introspect-cli --hosts hosts route vrouter-fqdn domain:project:net1:net1 -s 192.168.1.5 -l
+    $ contrail-introspect-cli --hosts hosts agent-route vrouter-fqdn domain:project:net1:net1 -s 192.168.1.5 -l
     Src 192.168.1.5
         Dst                        	Peers        	MPLS label	Interface	Dest VN                        
         vrouter-1                       10.12.128.10	30        	         	domain:project:net1
@@ -35,7 +35,7 @@ The `--hosts` option takes a `hosts` file to translate introspect IPs to DNS nam
 
 - Get route details from a controller
 ```
-	$ contrail-introspect-cli ctrl-route controller-1.example.com default-domain:openstack:public:public  -s 145 -l
+	$ contrail-introspect-cli controller-route controller-1.example.com default-domain:openstack:public:public  -s 145 -l
 	Prefix 8.8.8.145/32
 	        Protocol	Nexthop      	Peers        	MPLS label
 	        XMPP    	d-ocnclc-002w	d-ocnclc-002w	18        

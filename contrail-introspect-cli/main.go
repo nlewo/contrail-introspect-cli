@@ -218,15 +218,15 @@ func main() {
 			Destination: &hosts_file,
 		}}
 	app.Commands = []cli.Command{
-		GenCommand(DescRoute(), "route", "Show routes"),
-		GenCommand(DescItf(), "itf", "Show interfaces"),
-		GenCommand(DescVrf(), "vrf", "Show vrfs"),
-		GenCommand(DescPeering(), "peering", "Peering with controller"),
-		GenCommand(DescVn(), "vn", "Show virtual network"),
-		GenCommand(DescMpls(), "mpls", "Show mpls"),
+		GenCommand(DescRoute(), "agent-route", "Show routes"),
+		GenCommand(DescItf(), "agent-itf", "Show interfaces"),
+		GenCommand(DescVrf(), "agent-vrf", "Show vrfs"),
+		GenCommand(DescPeering(), "agent-peering", "Peering with controller"),
+		GenCommand(DescVn(), "agent-vn", "Show virtual network"),
+		GenCommand(DescMpls(), "agent-mpls", "Show mpls"),
 		Follow(),
-		GenCommand(DescRiSummary(), "ri-summary", "Show RI Summary"),
-		GenCommand(DescCtrlRoute(), "ctrl-route", "Show Route on Controller"),
+		GenCommand(DescRiSummary(), "controller-ri", "Show RI Summary"),
+		GenCommand(DescCtrlRoute(), "controller-route", "Show Route on Controller"),
 		{
 			Name:      "multiple",
 			Usage:     "List routes with multiple nexthops",
