@@ -72,6 +72,18 @@ func (col *Collection) SearchStrict(pattern string) Elements {
 	return col.Search(col.SearchXpathStrict, pattern)
 }
 
+func (col *Collection) SearchFuzzyUnique(pattern string) Element {
+	res := col.SearchFuzzy(pattern)
+	if len(res) > 1 {
+		fmt.Printf("Pattern %s matches:", pattern)
+		for _ ,e := range(res) {
+			fmt.Printf("\t%s", e)
+		}
+		log.Fatal("Pattern must match exactly one element")
+	}
+	return res[0]
+}
+
 func (col *Collection) Search(searchPredicate (func(string) string), pattern string) Elements {
 	ss, _ := col.node.Search(searchPredicate(pattern))
 	var elements []Element = make([]Element, len(ss))
