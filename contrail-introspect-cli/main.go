@@ -261,6 +261,7 @@ func main() {
 		GenCommand(DescVn(), "agent-vn", "Show virtual networks on agent"),
 		GenCommand(DescMpls(), "agent-mpls", "Show mpls on agent"),
 		Follow(),
+		Path(),
 		GenCommand(DescRiSummary(), "controller-ri", "Show routing instances on controller"),
 		GenCommand(DescCtrlRoute(), "controller-route", "Show routes on controller"),
 		GenCommand(DescCtrlRouteSummary(), "controller-route-summary", "Show routes summary on controller"),
