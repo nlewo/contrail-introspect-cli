@@ -12,8 +12,9 @@ import "github.com/moovweb/gokogiri/xml"
 type Collection struct {
 	url      string
 	descCol  DescCollection
-	doc      *xml.XmlDocument
-	node     xml.Node
+	// The node containing the whole XML, for instance the whole
+	// loaded XML Page.
+	rootNode     xml.Node
 	elements []Element
 }
 
@@ -48,7 +49,7 @@ type DescElement struct {
 }
 
 func (col *Collection) Init() {
-	ss, _ := col.node.Search(col.descCol.BaseXpath + "/*")
+	ss, _ := col.rootNode.Search(col.descCol.BaseXpath + "/*")
 	col.elements = make([]Element, len(ss))
 	for i, s := range ss {
 		col.elements[i] = Element{node: s, desc: col.descCol.DescElt}
@@ -85,7 +86,7 @@ func (col *Collection) SearchFuzzyUnique(pattern string) Element {
 }
 
 func (col *Collection) Search(searchPredicate (func(string) string), pattern string) Elements {
-	ss, _ := col.node.Search(searchPredicate(pattern))
+	ss, _ := col.rootNode.Search(searchPredicate(pattern))
 	var elements []Element = make([]Element, len(ss))
 	for i, s := range ss {
 		elements[i] = Element{node: s, desc: col.descCol.DescElt}
@@ -122,7 +123,7 @@ func (elts Elements) Xml() {
 	}
 }
 func (c Collection) Xml() {
-	fmt.Printf("%s", c.node)
+	fmt.Printf("%s", c.rootNode)
 }
 
 func (e Element) Short() {

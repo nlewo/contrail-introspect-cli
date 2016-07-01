@@ -55,7 +55,7 @@ func dataToXml(data []byte) xml.Node {
 }
 
 func xmlToCollection(node xml.Node, descCol DescCollection, url string) Collection {
-	col := Collection{node: node, descCol: descCol, url: url}
+	col := Collection{rootNode: node, descCol: descCol, url: url}
 	col.Init()
 	return col
 }
