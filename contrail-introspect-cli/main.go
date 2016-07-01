@@ -111,6 +111,22 @@ func DescRiSummary() DescCollection {
 	}
 }
 
+func DescCtrlRouteSummary() DescCollection {
+    return DescCollection{
+        PageArgs: []string{"controller-fqdn", "search"},
+		PageBuilder: func(args []string) Sourcer {
+			path := fmt.Sprintf("Snh_ShowRouteSummaryReq?search_string=%s", args[1])
+			return Webui{Path: path, VrouterUrl: args[0], Port: 8083}
+		},
+		BaseXpath: "ShowRouteSummaryResp/tables/list",
+		DescElt: DescElement{
+			ShortDetailXpath: "name/text()",
+			LongDetail:       LongFormatFn(routeSummaryDetail),
+        },
+		PrimaryField: "name",
+    }
+}
+
 func DescCtrlRoute() DescCollection {
 	return DescCollection{
 		PageArgs: []string{"controller-fqdn", "routing-instance"},
@@ -140,6 +156,24 @@ func DescMpls() DescCollection {
 		},
 		PrimaryField: "label",
 	}
+}
+
+func routeSummaryDetail(e Element) {
+	table := uitable.New()
+	table.MaxColWidth = 80
+	table.AddRow("Name", "Prefixes", "Paths", "Primary paths", "Secondary paths", "Pending Updates")
+	fields := []string{"name", "prefixes", "paths", "primary_paths",
+	                   "secondary_paths", "pending_updates"}
+	paths, _ := e.node.Search(".")
+	for _, path := range paths {
+		values := [6]string{}
+		for i, field := range fields {
+			value, _ := path.Search(fmt.Sprintf("%s/text()", field))
+			values[i] = Pretty(value)
+		}
+		table.AddRow(values[0], values[1], values[2], values[3], values[4], values[5])
+	}
+	fmt.Println(table)
 }
 
 func routeDetail(e Element) {
@@ -227,6 +261,7 @@ func main() {
 		Follow(),
 		GenCommand(DescRiSummary(), "controller-ri", "Show routing instances on controller"),
 		GenCommand(DescCtrlRoute(), "controller-route", "Show routes on controller"),
+		GenCommand(DescCtrlRouteSummary(), "controller-route-summary", "Show routes summary on controller"),
 		{
 			Name:      "multiple",
 			Usage:     "List routes with multiple nexthops",
