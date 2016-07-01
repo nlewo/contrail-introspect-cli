@@ -7,6 +7,7 @@ import "fmt"
 import "log"
 
 import "github.com/moovweb/gokogiri/xml"
+import "github.com/gosuri/uitable"
 
 // A Collection describes and contains a list of Elements.
 type Collection struct {
@@ -142,35 +143,77 @@ func (elts Elements) Short() {
 	}
 }
 func (e Element) Long() {
-	e.desc.LongDetail.LongFormat(e)
+	e.desc.LongDetail.LongFormat(FORMAT_TEXT, e)
 }
 func (col Collection) Long() {
 	Elements(col.elements).Long()
 }
 func (elts Elements) Long() {
-	for _, e := range elts {
-		e.Long()
+	for i, e := range elts {
+		format := FORMAT_TABLE
+		if i == 0 {
+			format = FORMAT_TABLE_HEADER
+		}
+		e.desc.LongDetail.LongFormat(format, e)
 		fmt.Printf("\n")
 	}
 }
 
 // This is used to show the long version of an Element.
 type LongFormatter interface {
-	LongFormat(e Element)
+	LongFormat(f Format, e Element)
 }
 
 type LongFormatFn (func(Element))
 type LongFormatXpaths []string
 
-func (fn LongFormatFn) LongFormat(e Element) {
+type Format uint8
+const (
+	FORMAT_TEXT Format = 1
+	FORMAT_TABLE_HEADER Format   = 2
+	FORMAT_TABLE Format = 3
+)
+
+
+func (fn LongFormatFn) LongFormat(format Format, e Element) {
 	fn(e)
 }
-func (xpaths LongFormatXpaths) LongFormat(e Element) {
-	for _, xpath := range xpaths {
-		s, _ := e.node.Search(xpath + "/text()")
-		if len(s) == 1 {
-			fmt.Printf("%s ", Pretty(s))
+
+func (xpaths LongFormatXpaths) LongFormat(format Format, e Element) {
+	if format == FORMAT_TABLE_HEADER || format == FORMAT_TABLE {
+		longFormatTable(format, e, xpaths)
+	} else {
+		for _, xpath := range xpaths {
+			s, _ := e.node.Search(xpath + "/text()")
+			if len(s) == 1 {
+				fmt.Printf("%s ", Pretty(s))
+			}
 		}
 	}
 }
+
+func longFormatTable(format Format, e Element, xpaths LongFormatXpaths) {
+	table := uitable.New()
+	table.MaxColWidth = 80
+
+	if format == FORMAT_TABLE_HEADER {
+		tmp := make([]interface{}, len(xpaths))
+		for i, v := range xpaths {
+			tmp[i] = v
+		}
+		table.AddRow(tmp...)
+	}
+
+	tmp := make([]interface{}, len(xpaths))
+	for i, xpath := range xpaths {
+		s, _ := e.node.Search(xpath + "/text()")
+		if len(s) == 1 {
+			tmp[i] = Pretty(s)
+		}
+	}
+	table.AddRow(tmp...)
+	
+	fmt.Print(table)
+}
+
 
