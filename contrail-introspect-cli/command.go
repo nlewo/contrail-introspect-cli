@@ -69,5 +69,13 @@ func GenCommand(descCol DescCollection, name string, usage string) cli.Command {
 			}
 			list.Short()
 		},
+		BashComplete: func(c *cli.Context) {
+			// We only complete the first argument
+			if c.NArg() == 0 {
+				for _, fqdn := range hosts {
+					fmt.Println(fqdn)
+				}
+			}
+		},
 	}
 }

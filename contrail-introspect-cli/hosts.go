@@ -1,7 +1,6 @@
 package main
 
 import "bufio"
-import "log"
 import "strings"
 import "os"
 
@@ -14,10 +13,10 @@ var hosts Hosts
 
 // Take a hosts file in the same format than /etc/hosts file.
 // Currently, the only two first elements are used.
-func LoadHostsFile(filepath string) Hosts {
+func LoadHostsFile(filepath string) (Hosts, error) {
 	file, err := os.Open(filepath)
 	if err != nil {
-		log.Fatal(err)
+		return nil, err
 	}
 	scanner := bufio.NewScanner(file)
 	m := make(Hosts)
@@ -26,7 +25,7 @@ func LoadHostsFile(filepath string) Hosts {
 		ips := strings.Split(line, " ")
 		m[ips[0]] = ips[1]
 	}
-	return m
+	return m, nil
 }
 
 func ResolveIp(ip string) string {

@@ -241,8 +241,9 @@ func main() {
 	app.EnableBashCompletion = true
 	app.Before = func(c *cli.Context) error {
 		if c.GlobalIsSet("hosts") {
-			hosts = LoadHostsFile(c.GlobalString("hosts"))
-			return nil
+			var err error
+			hosts, err = LoadHostsFile(c.GlobalString("hosts"))
+			return err
 		}
 		return nil
 	}
