@@ -11,11 +11,11 @@ import "github.com/gosuri/uitable"
 
 // A Collection describes and contains a list of Elements.
 type Collection struct {
-	url      string
-	descCol  DescCollection
+	url     string
+	descCol DescCollection
 	// The node containing the whole XML, for instance the whole
 	// loaded XML Page.
-	rootNode     xml.Node
+	rootNode xml.Node
 	elements []Element
 }
 
@@ -30,14 +30,14 @@ type Element struct {
 type DescCollection struct {
 	// Names of arguments required from the user to get datas from
 	// introspect
-	PageArgs    []string
+	PageArgs []string
 	// A function that takes the list of arguments specified by
 	// the user
 	PageBuilder (func([]string) Sourcer)
 	// The root Xpath
-	BaseXpath   string
+	BaseXpath string
 	// Description of Collection's Elements
-	DescElt     DescElement
+	DescElt DescElement
 	// Name of the attribute used to search in the collection
 	PrimaryField string
 }
@@ -46,7 +46,7 @@ type DescElement struct {
 	// Xpath used to generate the short version of an element
 	ShortDetailXpath string
 	// Used to generate the long version of an element
-	LongDetail       LongFormatter
+	LongDetail LongFormatter
 }
 
 func (col *Collection) Init() {
@@ -57,12 +57,11 @@ func (col *Collection) Init() {
 	}
 }
 
-
-func (col *Collection) SearchXpathFuzzy(pattern string) string{
+func (col *Collection) SearchXpathFuzzy(pattern string) string {
 	return col.descCol.BaseXpath + "/*/" + col.descCol.PrimaryField + "[contains(text(),'" + pattern + "')]/.."
 }
 
-func (col *Collection) SearchXpathStrict(pattern string) string{
+func (col *Collection) SearchXpathStrict(pattern string) string {
 	return col.descCol.BaseXpath + "/*/" + col.descCol.PrimaryField + "[text()='" + pattern + "']/.."
 }
 
@@ -78,7 +77,7 @@ func (col *Collection) SearchFuzzyUnique(pattern string) Element {
 	res := col.SearchFuzzy(pattern)
 	if len(res) > 1 {
 		fmt.Printf("Pattern %s matches:", pattern)
-		for _ ,e := range(res) {
+		for _, e := range res {
 			fmt.Printf("\t%s", e)
 		}
 		log.Fatal("Pattern must match exactly one element")
@@ -86,7 +85,7 @@ func (col *Collection) SearchFuzzyUnique(pattern string) Element {
 	return res[0]
 }
 
-func (col *Collection) Search(searchPredicate (func(string) string), pattern string) Elements {
+func (col *Collection) Search(searchPredicate func(string) string, pattern string) Elements {
 	ss, _ := col.rootNode.Search(searchPredicate(pattern))
 	var elements []Element = make([]Element, len(ss))
 	for i, s := range ss {
@@ -168,12 +167,12 @@ type LongFormatFn (func(Element))
 type LongFormatXpaths []string
 
 type Format uint8
-const (
-	FORMAT_TEXT Format = 1
-	FORMAT_TABLE_HEADER Format   = 2
-	FORMAT_TABLE Format = 3
-)
 
+const (
+	FORMAT_TEXT         Format = 1
+	FORMAT_TABLE_HEADER Format = 2
+	FORMAT_TABLE        Format = 3
+)
 
 func (fn LongFormatFn) LongFormat(format Format, e Element) {
 	fn(e)
@@ -212,8 +211,6 @@ func longFormatTable(format Format, e Element, xpaths LongFormatXpaths) {
 		}
 	}
 	table.AddRow(tmp...)
-	
+
 	fmt.Print(table)
 }
-
-

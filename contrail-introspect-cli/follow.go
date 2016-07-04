@@ -11,8 +11,8 @@ func Follow() cli.Command {
 
 		Flags: []cli.Flag{
 			cli.StringFlag{
-				Name:        "fqdn",
-				Usage:"Suffix appended to introspect hostnames",
+				Name:  "fqdn",
+				Usage: "Suffix appended to introspect hostnames",
 			}},
 		Action: func(c *cli.Context) {
 			// Get the interface

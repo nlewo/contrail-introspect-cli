@@ -27,7 +27,7 @@ func multiple(vrouter string, vrf_name string, count bool) {
 
 func DescPeering() DescCollection {
 	return DescCollection{
-		PageArgs: []string{"vrouter-fqdn"},
+		PageArgs:  []string{"vrouter-fqdn"},
 		BaseXpath: "AgentXmppConnectionStatus/peer/list",
 		PageBuilder: func(args []string) Sourcer {
 			return Webui{Path: "Snh_AgentXmppConnectionStatusReq", VrouterUrl: args[0], Port: 8085}
@@ -112,8 +112,8 @@ func DescRiSummary() DescCollection {
 }
 
 func DescCtrlRouteSummary() DescCollection {
-    return DescCollection{
-        PageArgs: []string{"controller-fqdn", "search"},
+	return DescCollection{
+		PageArgs: []string{"controller-fqdn", "search"},
 		PageBuilder: func(args []string) Sourcer {
 			path := fmt.Sprintf("Snh_ShowRouteSummaryReq?search_string=%s", args[1])
 			return Webui{Path: path, VrouterUrl: args[0], Port: 8083}
@@ -121,10 +121,10 @@ func DescCtrlRouteSummary() DescCollection {
 		BaseXpath: "ShowRouteSummaryResp/tables/list",
 		DescElt: DescElement{
 			ShortDetailXpath: "name/text()",
-			LongDetail:       LongFormatFn(routeSummaryDetail),
-        },
+			LongDetail:       LongFormatXpaths([]string{"name", "prefixes", "paths", "primary_paths", "secondary_paths", "pending_updates"}),
+		},
 		PrimaryField: "name",
-    }
+	}
 }
 
 func DescCtrlRoute() DescCollection {
@@ -163,7 +163,7 @@ func routeSummaryDetail(e Element) {
 	table.MaxColWidth = 80
 	table.AddRow("Name", "Prefixes", "Paths", "Primary paths", "Secondary paths", "Pending Updates")
 	fields := []string{"name", "prefixes", "paths", "primary_paths",
-	                   "secondary_paths", "pending_updates"}
+		"secondary_paths", "pending_updates"}
 	paths, _ := e.node.Search(".")
 	for _, path := range paths {
 		values := [6]string{}
@@ -201,7 +201,7 @@ func mplsDetail(e Element) {
 }
 
 func nexthopDetail(node xml.Node) {
-        table := uitable.New()
+	table := uitable.New()
 	table.MaxColWidth = 80
 	table.AddRow("    Type", "Interface", "Nexthop index")
 	nhs, _ := node.Search("nh/NhSandeshData/type/text()")

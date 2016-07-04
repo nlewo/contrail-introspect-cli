@@ -71,4 +71,3 @@ func GenCommand(descCol DescCollection, name string, usage string) cli.Command {
 		},
 	}
 }
-

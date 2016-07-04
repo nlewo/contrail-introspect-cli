@@ -11,14 +11,14 @@ import "github.com/moovweb/gokogiri/xml"
 
 type Remote struct {
 	VrouterUrl string
-	Port int
+	Port       int
 	Table      string
 }
 
 type Webui struct {
 	VrouterUrl string
-	Port int
-	Path      string
+	Port       int
+	Path       string
 }
 
 type File struct {
@@ -112,7 +112,7 @@ func (page Webui) Load(descCol DescCollection) Collection {
 
 			for _, l := range newLists {
 				lists, _ := node.Search("/*/*/list")
-				lists[len(lists) - 1].InsertAfter(l)
+				lists[len(lists)-1].InsertAfter(l)
 			}
 		} else {
 			break
