@@ -266,7 +266,7 @@ func main() {
 		GenCommand(DescCtrlRoute(), "controller-route", "Show routes on controller"),
 		GenCommand(DescCtrlRouteSummary(), "controller-route-summary", "Show routes summary on controller"),
 		{
-			Name:      "multiple",
+			Name:      "agent-multiple",
 			Usage:     "List routes with multiple nexthops",
 			ArgsUsage: "vrouter vrf_name",
 			Flags: []cli.Flag{

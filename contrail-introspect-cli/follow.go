@@ -5,7 +5,7 @@ import "github.com/codegangsta/cli"
 
 func Follow() cli.Command {
 	return cli.Command{
-		Name:      "follow",
+		Name:      "agent-follow",
 		Usage:     "From a compute node, a vrf and a route, follow the route to destination",
 		ArgsUsage: "vrouter-fqdn vrf-name route-prefix",
 
