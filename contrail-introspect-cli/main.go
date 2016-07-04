@@ -238,6 +238,7 @@ func main() {
 	app.Name = "contrail-introspect-cli"
 	app.Usage = "CLI on ContraiL Introspects"
 	app.Version = "0.0.3"
+	app.EnableBashCompletion = true
 	app.Before = func(c *cli.Context) error {
 		if c.GlobalIsSet("hosts") {
 			hosts = LoadHostsFile(c.GlobalString("hosts"))
