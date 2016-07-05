@@ -14,7 +14,7 @@ func Follow() cli.Command {
 				Name:  "fqdn",
 				Usage: "Suffix appended to introspect hostnames",
 			}},
-		Action: func(c *cli.Context) {
+		Action: func(c *cli.Context) error {
 			// Get the interface
 			suffix := ""
 			if c.String("fqdn") != "" {
@@ -45,6 +45,8 @@ func Follow() cli.Command {
 			elt = col.SearchStrict(itf)
 			fmt.Printf("3. To interface %s of vm %s\n", itf, elt[0].GetField("vm_uuid"))
 			// elt.Long()
+
+			return nil
 		},
 	}
 }

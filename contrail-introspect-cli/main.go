@@ -274,13 +274,14 @@ func main() {
 					Name:        "count",
 					Destination: &count,
 				}},
-			Action: func(c *cli.Context) {
+			Action: func(c *cli.Context) error {
 				if c.NArg() != 2 {
 					log.Fatal("Wrong argument number!")
 				}
 				vrouter := c.Args()[0]
 				vrf_name := c.Args()[1]
 				multiple(vrouter, vrf_name, count)
+				return nil
 			},
 		},
 	}

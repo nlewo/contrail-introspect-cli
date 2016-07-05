@@ -34,7 +34,7 @@ func GenCommand(descCol DescCollection, name string, usage string) cli.Command {
 				Value: "",
 			},
 		},
-		Action: func(c *cli.Context) {
+		Action: func(c *cli.Context) error {
 			var page Sourcer
 			if c.IsSet("from-file") {
 				page = File{Path: c.Args()[0]}
@@ -48,7 +48,7 @@ func GenCommand(descCol DescCollection, name string, usage string) cli.Command {
 			col := page.Load(descCol)
 			if c.IsSet("url") {
 				fmt.Println(col.url)
-				return
+				return nil
 			}
 
 			var list Shower
@@ -61,13 +61,15 @@ func GenCommand(descCol DescCollection, name string, usage string) cli.Command {
 
 			if c.IsSet("xml") {
 				list.Xml()
-				return
+				return nil
 			}
 			if c.IsSet("long") {
 				list.Long()
-				return
+				return nil
 			}
 			list.Short()
+
+			return nil
 		},
 		BashComplete: func(c *cli.Context) {
 			// We only complete the first argument

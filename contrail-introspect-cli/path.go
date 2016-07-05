@@ -9,7 +9,7 @@ func Path() cli.Command {
 		Name:      "controller-path",
 		Usage:     "Find the path to go from a prefix to another on in a routing instance",
 		ArgsUsage: "controller-fqdn ri source-prefix dest-prefix",
-		Action: func(c *cli.Context) {
+		Action: func(c *cli.Context) error {
 
 			controller := c.Args()[0]
 			ri := c.Args()[1]
@@ -34,6 +34,8 @@ func Path() cli.Command {
 			label := elt[0].GetField("paths/list/ShowRoutePath/label")
 
 			fmt.Printf("From prefix %s on %s to dst %s on %s with label %s", srcIp, ResolveIp(srcNode), dstIp, ResolveIp(dstNode), label)
+
+			return nil
 		},
 	}
 }
