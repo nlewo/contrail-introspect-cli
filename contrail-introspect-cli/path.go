@@ -33,7 +33,7 @@ func Path() cli.Command {
 			dstNode := elt[0].GetField("paths/list/ShowRoutePath/next_hop")
 			label := elt[0].GetField("paths/list/ShowRoutePath/label")
 
-			fmt.Printf("From prefix %s on %s to dst %s on %s with label %s", srcIp, ResolveIp(srcNode), dstIp, ResolveIp(dstNode), label)
+			fmt.Printf("From prefix %s on %s to dst %s on %s with label %s\n", srcIp, ResolveIp(srcNode), dstIp, ResolveIp(dstNode), label)
 
 			return nil
 		},
