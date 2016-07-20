@@ -33,6 +33,11 @@ func GenCommand(descCol DescCollection, name string, usage string) cli.Command {
 				Usage: fmt.Sprintf("Search by %s", descCol.PrimaryField),
 				Value: "",
 			},
+			cli.StringFlag{
+				Name:  "strict-search, S",
+				Usage: fmt.Sprintf("Strict search by %s", descCol.PrimaryField),
+				Value: "",
+			},
 		},
 		Action: func(c *cli.Context) error {
 			var page Sourcer
@@ -55,10 +60,12 @@ func GenCommand(descCol DescCollection, name string, usage string) cli.Command {
 
 			if c.String("s") != "" {
 				list = col.SearchFuzzy(c.String("s"))
+			} else if c.String("S") != "" {
+				list = col.SearchStrict(c.String("S"))
 			} else {
 				list = col
 			}
-
+			
 			if c.IsSet("xml") {
 				list.Xml()
 				return nil
