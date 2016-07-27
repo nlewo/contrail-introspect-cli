@@ -26,11 +26,11 @@ func GenCommand(descCol DescCollection, name string, usage string) cli.Command {
 			},
 			cli.BoolFlag{
 				Name:  "url, u",
-				Usage: "Just show URL",
+				Usage: "Just show the used URL",
 			},
 			cli.StringFlag{
 				Name:  "search, s",
-				Usage: fmt.Sprintf("Search by %s", descCol.PrimaryField),
+				Usage: fmt.Sprintf("Fuzzy search by %s", descCol.PrimaryField),
 				Value: "",
 			},
 			cli.StringFlag{
