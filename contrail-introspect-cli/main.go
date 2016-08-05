@@ -54,6 +54,23 @@ func DescItf() DescCollection {
 		PrimaryField: "name",
 	}
 }
+
+func DescSi() DescCollection {
+	return DescCollection{
+		BaseXpath: "__ServiceInstanceResp_list/ServiceInstanceResp/service_instance_list/list",
+		DescElt: DescElement{
+			ShortDetailXpath: "uuid/text()",
+			// LongDetailHelp: []string{"Service instance uuid", "Type of service instance", "Virtual machine uuid"},
+			LongDetail:       LongFormatXpaths([]string{"uuid", "service_type", "instance_id"}),
+		},
+		PageArgs: []string{"vrouter-fqdn"},
+		PageBuilder: func(args []string) Sourcer {
+			return Remote{Table: "db.service-instance.0", VrouterUrl: args[0], Port: 8085}
+		},
+		PrimaryField: "uuid",
+	}
+}
+
 func DescRoute() DescCollection {
 	return DescCollection{
 		PageArgs: []string{"vrouter-fqdn", "vrf-name"},
@@ -111,6 +128,7 @@ func DescRiSummary() DescCollection {
 	}
 }
 
+
 func DescCtrlRouteSummary() DescCollection {
 	return DescCollection{
 		PageArgs: []string{"controller-fqdn", "search"},
@@ -157,6 +175,7 @@ func DescMpls() DescCollection {
 		PrimaryField: "label",
 	}
 }
+
 
 func routeSummaryDetail(e Element) {
 	table := uitable.New()
@@ -256,6 +275,7 @@ func main() {
 	app.Commands = []cli.Command{
 		GenCommand(DescRoute(), "agent-route", "Show routes on agent"),
 		GenCommand(DescItf(), "agent-itf", "Show interfaces on agent"),
+		GenCommand(DescSi(), "agent-si", "Show service instances on agent"),
 		GenCommand(DescVrf(), "agent-vrf", "Show vrfs on agent "),
 		GenCommand(DescPeering(), "agent-peering", "Peering with controller on agent"),
 		GenCommand(DescVn(), "agent-vn", "Show virtual networks on agent"),
