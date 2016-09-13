@@ -45,7 +45,7 @@ func DescItf() DescCollection {
 		BaseXpath: "__ItfResp_list/ItfResp/itf_list/list",
 		DescElt: DescElement{
 			ShortDetailXpath: "name/text()",
-			LongDetail:       LongFormatXpaths([]string{"uuid", "name", "vrf_name", "vm_uuid", "mdata_ip_addr"}),
+			LongDetail:       LongFormatXpaths([]string{"uuid", "name", "vrf_name", "vm_uuid", "ip_addr", "mdata_ip_addr"}),
 		},
 		PageArgs: []string{"vrouter-fqdn"},
 		PageBuilder: func(args []string) Sourcer {
