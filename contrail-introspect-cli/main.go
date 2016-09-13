@@ -176,77 +176,49 @@ func DescMpls() DescCollection {
 	}
 }
 
-
-func routeSummaryDetail(e Element) {
-	table := uitable.New()
-	table.MaxColWidth = 80
-	table.AddRow("Name", "Prefixes", "Paths", "Primary paths", "Secondary paths", "Pending Updates")
-	fields := []string{"name", "prefixes", "paths", "primary_paths",
-		"secondary_paths", "pending_updates"}
-	paths, _ := e.node.Search(".")
-	for _, path := range paths {
-		values := [6]string{}
-		for i, field := range fields {
-			value, _ := path.Search(fmt.Sprintf("%s/text()", field))
-			values[i] = Pretty(value)
-		}
-		table.AddRow(values[0], values[1], values[2], values[3], values[4], values[5])
-	}
-	fmt.Println(table)
-}
-
-func routeDetail(e Element) {
+func routeDetail(t *uitable.Table, e Element) {
 	srcIp, _ := e.node.Search("src_ip/text()")
 	fmt.Printf("Src %s\n", srcIp[0])
 	paths, _ := e.node.Search("path_list/list/PathSandeshData")
 
-	table := uitable.New()
-	table.MaxColWidth = 80
-	table.AddRow("    Dst", "Peers", "MPLS label", "Interface", "Dest VN")
+	t.AddRow("    Dst", "Peers", "MPLS label", "Interface", "Dest VN")
 	for _, path := range paths {
 		nhs, _ := path.Search("nh/NhSandeshData//dip/text()")
 		peers, _ := path.Search("peer/text()")
 		label, _ := path.Search("label/text()")
 		destvn, _ := path.Search("dest_vn/text()")
 		itf, _ := path.Search("nh/NhSandeshData/itf/text()")
-		table.AddRow("    "+Pretty(nhs), Pretty(peers), Pretty(label), Pretty(itf), Pretty(destvn))
+		t.AddRow("    "+Pretty(nhs), Pretty(peers), Pretty(label), Pretty(itf), Pretty(destvn))
 	}
-	fmt.Println(table)
 }
 
-func mplsDetail(e Element) {
+func mplsDetail(t *uitable.Table, e Element) {
 	fmt.Printf("Label: %s\n", e.GetField("label"))
-	nexthopDetail(e.node)
+	nexthopDetail(t, e.node)
 }
 
-func nexthopDetail(node xml.Node) {
-	table := uitable.New()
-	table.MaxColWidth = 80
-	table.AddRow("    Type", "Interface", "Nexthop index")
+func nexthopDetail(t *uitable.Table, node xml.Node) {
+	t.AddRow("    Type", "Interface", "Nexthop index")
 	nhs, _ := node.Search("nh/NhSandeshData/type/text()")
 	itf, _ := node.Search("nh/NhSandeshData/itf/text()")
 	nhIdx, _ := node.Search("nh/NhSandeshData/nh_index/text()")
-	table.AddRow("    "+Pretty(nhs), Pretty(itf), Pretty(nhIdx))
-	fmt.Println(table)
+	t.AddRow("    "+Pretty(nhs), Pretty(itf), Pretty(nhIdx))
 }
 
-func controllerRoutePath(e Element) {
+func controllerRoutePath(t *uitable.Table, e Element) {
 	srcIp, _ := e.node.Search("prefix/text()")
 	fmt.Printf("Prefix %s\n", srcIp[0])
 	paths, _ := e.node.Search("paths/list/ShowRoutePath")
 
-	table := uitable.New()
-	table.MaxColWidth = 80
-	table.AddRow("    Protocol", "Nexthop", "Local Pref", "Peers", "MPLS label")
+	t.AddRow("    Protocol", "Nexthop", "Local Pref", "Peers", "MPLS label")
 	for _, path := range paths {
 		protocol, _ := path.Search("protocol/text()")
 		nhs, _ := path.Search("next_hop/text()")
 		peers, _ := path.Search("source/text()")
 		label, _ := path.Search("label/text()")
 		localPref, _ := path.Search("local_preference/text()")
-		table.AddRow("    "+Pretty(protocol), Pretty(nhs), Pretty(localPref), Pretty(peers), Pretty(label))
+		t.AddRow("    "+Pretty(protocol), Pretty(nhs), Pretty(localPref), Pretty(peers), Pretty(label))
 	}
-	fmt.Println(table)
 }
 
 func main() {
