@@ -178,7 +178,7 @@ func DescMpls() DescCollection {
 
 func routeDetail(t *uitable.Table, e Element) {
 	srcIp, _ := e.node.Search("src_ip/text()")
-	fmt.Printf("Src %s\n", srcIp[0])
+	t.AddRow(fmt.Sprintf("Src %s", srcIp[0]))
 	paths, _ := e.node.Search("path_list/list/PathSandeshData")
 
 	t.AddRow("    Dst", "Peers", "MPLS label", "Interface", "Dest VN")
@@ -190,11 +190,13 @@ func routeDetail(t *uitable.Table, e Element) {
 		itf, _ := path.Search("nh/NhSandeshData/itf/text()")
 		t.AddRow("    "+Pretty(nhs), Pretty(peers), Pretty(label), Pretty(itf), Pretty(destvn))
 	}
+	t.AddRow("")
 }
 
 func mplsDetail(t *uitable.Table, e Element) {
-	fmt.Printf("Label: %s\n", e.GetField("label"))
+	t.AddRow(fmt.Sprintf("Label: %s", e.GetField("label")))
 	nexthopDetail(t, e.node)
+	t.AddRow("")
 }
 
 func nexthopDetail(t *uitable.Table, node xml.Node) {
@@ -207,7 +209,7 @@ func nexthopDetail(t *uitable.Table, node xml.Node) {
 
 func controllerRoutePath(t *uitable.Table, e Element) {
 	srcIp, _ := e.node.Search("prefix/text()")
-	fmt.Printf("Prefix %s\n", srcIp[0])
+	t.AddRow(fmt.Sprintf("Prefix %s", srcIp[0]))
 	paths, _ := e.node.Search("paths/list/ShowRoutePath")
 
 	t.AddRow("    Protocol", "Nexthop", "Local Pref", "Peers", "MPLS label")
@@ -219,6 +221,7 @@ func controllerRoutePath(t *uitable.Table, e Element) {
 		localPref, _ := path.Search("local_preference/text()")
 		t.AddRow("    "+Pretty(protocol), Pretty(nhs), Pretty(localPref), Pretty(peers), Pretty(label))
 	}
+	t.AddRow("")
 }
 
 func main() {
