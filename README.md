@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/nlewo/contrail-introspect-cli.svg?branch=master)](https://travis-ci.org/nlewo/contrail-introspect-cli)
+
 CLI on ContraiL Introspects
 ===========================
 
