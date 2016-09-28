@@ -1,7 +1,9 @@
-package main
+package requests
 
 import "fmt"
 import "github.com/codegangsta/cli"
+
+import "github.com/nlewo/contrail-introspect-cli/utils"
 
 func Follow() cli.Command {
 	return cli.Command{
@@ -28,7 +30,7 @@ func Follow() cli.Command {
 			elt := col.SearchStrict(ip)
 			label := elt[0].GetField("path_list/list/PathSandeshData/label")
 			nh := elt[0].GetField("path_list/list/PathSandeshData/nh/NhSandeshData/dip")
-			nh_fqdn := ResolveIp(nh) + suffix
+			nh_fqdn := utils.ResolveIp(nh) + suffix
 			// elt.Long()
 			fmt.Printf("2. Go with MPLS label %s to %s\n", label, nh_fqdn)
 

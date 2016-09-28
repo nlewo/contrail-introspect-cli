@@ -6,7 +6,10 @@ import "strings"
 
 import "github.com/codegangsta/cli"
 
-func GenCommand(descCol DescCollection, name string, usage string) cli.Command {
+import "github.com/nlewo/contrail-introspect-cli/requests"
+import "github.com/nlewo/contrail-introspect-cli/utils"
+
+func GenCommand(descCol requests.DescCollection, name string, usage string) cli.Command {
 	return cli.Command{
 		Name:      name,
 		Usage:     usage,
@@ -40,9 +43,9 @@ func GenCommand(descCol DescCollection, name string, usage string) cli.Command {
 			},
 		},
 		Action: func(c *cli.Context) error {
-			var page Sourcer
+			var page requests.Sourcer
 			if c.IsSet("from-file") {
-				page = File{Path: c.Args()[0]}
+				page = requests.File{Path: c.Args()[0]}
 			} else {
 				if c.NArg() < len(descCol.PageArgs) {
 					cli.ShowSubcommandHelp(c)
@@ -52,11 +55,11 @@ func GenCommand(descCol DescCollection, name string, usage string) cli.Command {
 			}
 			col := page.Load(descCol)
 			if c.IsSet("url") {
-				fmt.Println(col.url)
+				fmt.Println(col.Url)
 				return nil
 			}
 
-			var list Shower
+			var list requests.Shower
 
 			if c.String("s") != "" {
 				list = col.SearchFuzzy(c.String("s"))
@@ -81,7 +84,7 @@ func GenCommand(descCol DescCollection, name string, usage string) cli.Command {
 		BashComplete: func(c *cli.Context) {
 			// We only complete the first argument
 			if c.NArg() == 0 {
-				for _, fqdn := range hosts {
+				for _, fqdn := range utils.HostMap {
 					fmt.Println(fqdn)
 				}
 			}

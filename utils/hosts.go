@@ -1,4 +1,4 @@
-package main
+package utils
 
 import "bufio"
 import "strings"
@@ -9,7 +9,7 @@ type Hosts map[string]string
 
 // Ok, it's a horrible hack... but I don't know yet how to propagated
 // this variable from Arguments to Printf!
-var hosts Hosts
+var HostMap Hosts
 
 // Take a hosts file in the same format than /etc/hosts file.
 // Currently, the only two first elements are used.
@@ -29,7 +29,7 @@ func LoadHostsFile(filepath string) (Hosts, error) {
 }
 
 func ResolveIp(ip string) string {
-	fqdn, ok := hosts[ip]
+	fqdn, ok := HostMap[ip]
 	if ok {
 		return fqdn
 	} else {

@@ -1,7 +1,7 @@
 // An introspect page is mapped into a Collection which is basically a
 // list of Element.
 
-package main
+package requests
 
 import "fmt"
 import "log"
@@ -9,9 +9,11 @@ import "log"
 import "github.com/moovweb/gokogiri/xml"
 import "github.com/gosuri/uitable"
 
+import "github.com/nlewo/contrail-introspect-cli/utils"
+
 // A Collection describes and contains a list of Elements.
 type Collection struct {
-	url     string
+	Url     string
 	descCol DescCollection
 	// The node containing the whole XML, for instance the whole
 	// loaded XML Page.
@@ -190,7 +192,7 @@ func (xpaths LongFormatXpaths) LongFormat(table *uitable.Table, format Format, e
 		for _, xpath := range xpaths {
 			s, _ := e.node.Search(xpath + "/text()")
 			if len(s) == 1 {
-				table.AddRow(Pretty(s))
+				table.AddRow(utils.Pretty(s))
 			}
 		}
 	}
@@ -209,7 +211,7 @@ func longFormatTable(table *uitable.Table, format Format, e Element, xpaths Long
 	for i, xpath := range xpaths {
 		s, _ := e.node.Search(xpath + "/text()")
 		if len(s) == 1 {
-			tmp[i] = Pretty(s)
+			tmp[i] = utils.Pretty(s)
 		}
 	}
 	table.AddRow(tmp...)

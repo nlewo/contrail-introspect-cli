@@ -1,4 +1,4 @@
-package main
+package requests
 
 import "fmt"
 import "os"
@@ -29,7 +29,7 @@ type Sourcer interface {
 	Load(descCol DescCollection) Collection
 }
 
-func load(url string, fromFile bool) *xml.XmlDocument {
+func Load(url string, fromFile bool) *xml.XmlDocument {
 	var data []byte
 	if fromFile {
 		file, _ := os.Open(url)
@@ -55,7 +55,7 @@ func dataToXml(data []byte) xml.Node {
 }
 
 func xmlToCollection(node xml.Node, descCol DescCollection, url string) Collection {
-	col := Collection{rootNode: node, descCol: descCol, url: url}
+	col := Collection{rootNode: node, descCol: descCol, Url: url}
 	col.Init()
 	return col
 }

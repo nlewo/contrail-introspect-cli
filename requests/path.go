@@ -1,8 +1,10 @@
-package main
+package requests
 
 import "fmt"
 import "github.com/codegangsta/cli"
 import "log"
+
+import "github.com/nlewo/contrail-introspect-cli/utils"
 
 func Path() cli.Command {
 	return cli.Command{
@@ -33,7 +35,7 @@ func Path() cli.Command {
 			dstNode := elt[0].GetField("paths/list/ShowRoutePath/next_hop")
 			label := elt[0].GetField("paths/list/ShowRoutePath/label")
 
-			fmt.Printf("From prefix %s on %s to dst %s on %s with label %s\n", srcIp, ResolveIp(srcNode), dstIp, ResolveIp(dstNode), label)
+			fmt.Printf("From prefix %s on %s to dst %s on %s with label %s\n", srcIp, utils.ResolveIp(srcNode), dstIp, utils.ResolveIp(dstNode), label)
 
 			return nil
 		},

@@ -1,27 +1,23 @@
-package main
+package requests
 
 import "fmt"
-import "os"
-import "log"
-
-import "github.com/moovweb/gokogiri/xpath"
 import "github.com/moovweb/gokogiri/xml"
-import "github.com/codegangsta/cli"
 import "github.com/gosuri/uitable"
 
-func multiple(vrouter string, vrf_name string, count bool) {
-	url := "http://" + vrouter + ":8085" + "/Snh_PageReq?x=begin:-1,end:-1,table:" + vrf_name + ".uc.route.0,"
+import "github.com/nlewo/contrail-introspect-cli/utils"
 
-	var doc = load(url, false)
-	defer doc.Free()
-	xps := xpath.Compile("//route_list/list/RouteUcSandeshData/path_list/list/PathSandeshData/nh/NhSandeshData/mc_list/../../../../../../src_ip/text()")
-	ss, _ := doc.Root().Search(xps)
-	if count {
-		fmt.Printf("%d\n", len(ss))
-	} else {
-		for _, s := range ss {
-			fmt.Printf("%s\n", s)
-		}
+func DescItf() DescCollection {
+	return DescCollection{
+		BaseXpath: "__ItfResp_list/ItfResp/itf_list/list",
+		DescElt: DescElement{
+			ShortDetailXpath: "name/text()",
+			LongDetail:       LongFormatXpaths([]string{"uuid", "name", "vrf_name", "vm_uuid", "ip_addr", "mdata_ip_addr"}),
+		},
+		PageArgs: []string{"vrouter-fqdn"},
+		PageBuilder: func(args []string) Sourcer {
+			return Remote{Table: "db.interface.0", VrouterUrl: args[0], Port: 8085}
+		},
+		PrimaryField: "name",
 	}
 }
 
@@ -40,20 +36,6 @@ func DescPeering() DescCollection {
 	}
 }
 
-func DescItf() DescCollection {
-	return DescCollection{
-		BaseXpath: "__ItfResp_list/ItfResp/itf_list/list",
-		DescElt: DescElement{
-			ShortDetailXpath: "name/text()",
-			LongDetail:       LongFormatXpaths([]string{"uuid", "name", "vrf_name", "vm_uuid", "ip_addr", "mdata_ip_addr"}),
-		},
-		PageArgs: []string{"vrouter-fqdn"},
-		PageBuilder: func(args []string) Sourcer {
-			return Remote{Table: "db.interface.0", VrouterUrl: args[0], Port: 8085}
-		},
-		PrimaryField: "name",
-	}
-}
 
 func DescSi() DescCollection {
 	return DescCollection{
@@ -188,7 +170,7 @@ func routeDetail(t *uitable.Table, e Element) {
 		label, _ := path.Search("label/text()")
 		destvn, _ := path.Search("dest_vn/text()")
 		itf, _ := path.Search("nh/NhSandeshData/itf/text()")
-		t.AddRow("    "+Pretty(nhs), Pretty(peers), Pretty(label), Pretty(itf), Pretty(destvn))
+		t.AddRow("    "+utils.Pretty(nhs), utils.Pretty(peers), utils.Pretty(label), utils.Pretty(itf), utils.Pretty(destvn))
 	}
 	t.AddRow("")
 }
@@ -204,7 +186,7 @@ func nexthopDetail(t *uitable.Table, node xml.Node) {
 	nhs, _ := node.Search("nh/NhSandeshData/type/text()")
 	itf, _ := node.Search("nh/NhSandeshData/itf/text()")
 	nhIdx, _ := node.Search("nh/NhSandeshData/nh_index/text()")
-	t.AddRow("    "+Pretty(nhs), Pretty(itf), Pretty(nhIdx))
+	t.AddRow("    "+utils.Pretty(nhs), utils.Pretty(itf), utils.Pretty(nhIdx))
 }
 
 func controllerRoutePath(t *uitable.Table, e Element) {
@@ -219,66 +201,7 @@ func controllerRoutePath(t *uitable.Table, e Element) {
 		peers, _ := path.Search("source/text()")
 		label, _ := path.Search("label/text()")
 		localPref, _ := path.Search("local_preference/text()")
-		t.AddRow("    "+Pretty(protocol), Pretty(nhs), Pretty(localPref), Pretty(peers), Pretty(label))
+		t.AddRow("    "+utils.Pretty(protocol), utils.Pretty(nhs), utils.Pretty(localPref), utils.Pretty(peers), utils.Pretty(label))
 	}
 	t.AddRow("")
-}
-
-func main() {
-	var count bool
-	var hosts_file string
-
-	app := cli.NewApp()
-	app.Name = "contrail-introspect-cli"
-	app.Usage = "CLI on ContraiL Introspects"
-	app.Version = "0.0.4"
-	app.EnableBashCompletion = true
-	app.Before = func(c *cli.Context) error {
-		if c.GlobalIsSet("hosts") {
-			var err error
-			hosts, err = LoadHostsFile(c.GlobalString("hosts"))
-			return err
-		}
-		return nil
-	}
-	app.Flags = []cli.Flag{
-		cli.StringFlag{
-			Name:        "hosts",
-			Usage:       "host file to do DNS resolution",
-			Destination: &hosts_file,
-		}}
-	app.Commands = []cli.Command{
-		GenCommand(DescRoute(), "agent-route", "Show routes on agent"),
-		GenCommand(DescItf(), "agent-itf", "Show interfaces on agent"),
-		GenCommand(DescSi(), "agent-si", "Show service instances on agent"),
-		GenCommand(DescVrf(), "agent-vrf", "Show vrfs on agent "),
-		GenCommand(DescPeering(), "agent-peering", "Peering with controller on agent"),
-		GenCommand(DescVn(), "agent-vn", "Show virtual networks on agent"),
-		GenCommand(DescMpls(), "agent-mpls", "Show mpls on agent"),
-		Follow(),
-		Path(),
-		GenCommand(DescRiSummary(), "controller-ri", "Show routing instances on controller"),
-		GenCommand(DescCtrlRoute(), "controller-route", "Show routes on controller"),
-		GenCommand(DescCtrlRouteSummary(), "controller-route-summary", "Show routes summary on controller"),
-		{
-			Name:      "agent-multiple",
-			Usage:     "List routes with multiple nexthops",
-			ArgsUsage: "vrouter vrf_name",
-			Flags: []cli.Flag{
-				cli.BoolFlag{
-					Name:        "count",
-					Destination: &count,
-				}},
-			Action: func(c *cli.Context) error {
-				if c.NArg() != 2 {
-					log.Fatal("Wrong argument number!")
-				}
-				vrouter := c.Args()[0]
-				vrf_name := c.Args()[1]
-				multiple(vrouter, vrf_name, count)
-				return nil
-			},
-		},
-	}
-	app.Run(os.Args)
 }
