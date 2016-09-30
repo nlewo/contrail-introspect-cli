@@ -6,10 +6,10 @@ import "strings"
 
 import "github.com/codegangsta/cli"
 
-import "github.com/nlewo/contrail-introspect-cli/requests"
+import "github.com/nlewo/contrail-introspect-cli/collection"
 import "github.com/nlewo/contrail-introspect-cli/utils"
 
-func GenCommand(descCol requests.DescCollection, name string, usage string) cli.Command {
+func GenCommand(descCol collection.DescCollection, name string, usage string) cli.Command {
 	return cli.Command{
 		Name:      name,
 		Usage:     usage,
@@ -43,9 +43,9 @@ func GenCommand(descCol requests.DescCollection, name string, usage string) cli.
 			},
 		},
 		Action: func(c *cli.Context) error {
-			var page requests.Sourcer
+			var page collection.Sourcer
 			if c.IsSet("from-file") {
-				page = requests.File{Path: c.Args()[0]}
+				page = collection.File{Path: c.Args()[0]}
 			} else {
 				if c.NArg() < len(descCol.PageArgs) {
 					cli.ShowSubcommandHelp(c)
@@ -59,7 +59,7 @@ func GenCommand(descCol requests.DescCollection, name string, usage string) cli.
 				return nil
 			}
 
-			var list requests.Shower
+			var list collection.Shower
 
 			if c.String("s") != "" {
 				list = col.SearchFuzzy(c.String("s"))

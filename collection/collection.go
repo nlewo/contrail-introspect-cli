@@ -1,7 +1,7 @@
 // An introspect page is mapped into a Collection which is basically a
 // list of Element.
 
-package requests
+package collection
 
 import "fmt"
 
@@ -20,7 +20,7 @@ type Collection struct {
 type Elements []Element
 
 type Element struct {
-	node xml.Node
+	Node xml.Node
 	desc DescElement
 }
 
@@ -51,7 +51,7 @@ func (col *Collection) Init() {
 	ss, _ := col.rootNode.Search(col.descCol.BaseXpath + "/*")
 	col.elements = make([]Element, len(ss))
 	for i, s := range ss {
-		col.elements[i] = Element{node: s, desc: col.descCol.DescElt}
+		col.elements[i] = Element{Node: s, desc: col.descCol.DescElt}
 	}
 }
 
@@ -91,13 +91,13 @@ func (col *Collection) Search(searchPredicate func(string) string, pattern strin
 	ss, _ := col.rootNode.Search(searchPredicate(pattern))
 	var elements []Element = make([]Element, len(ss))
 	for i, s := range ss {
-		elements[i] = Element{node: s, desc: col.descCol.DescElt}
+		elements[i] = Element{Node: s, desc: col.descCol.DescElt}
 	}
 	return Elements(elements)
 }
 
 func (e Element) GetField(field string) (string, error) {
-	s, _ := e.node.Search(fmt.Sprintf("%s/text()", field))
+	s, _ := e.Node.Search(fmt.Sprintf("%s/text()", field))
 	for i, _ := range s {
 		if s[i].String() != s[0].String() {
 			return "", fmt.Errorf("All fields values must be equal (values: %s)", s)

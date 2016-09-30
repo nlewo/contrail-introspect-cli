@@ -1,4 +1,4 @@
-package requests
+package collection
 
 import "fmt"
 import "os"

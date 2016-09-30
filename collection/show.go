@@ -1,4 +1,4 @@
-package requests
+package collection
 
 import "fmt"
 import "log"
@@ -14,7 +14,7 @@ type Shower interface {
 }
 
 func (e Element) Xml() {
-	fmt.Printf("%s", e.node)
+	fmt.Printf("%s", e.Node)
 }
 func (elts Elements) Xml() {
 	for _, e := range elts {
@@ -26,7 +26,7 @@ func (c Collection) Xml() {
 }
 
 func (e Element) Short() {
-	s, _ := e.node.Search(e.desc.ShortDetailXpath)
+	s, _ := e.Node.Search(e.desc.ShortDetailXpath)
 	if len(s) != 1 {
 		log.Fatal("Xpath '" + e.desc.ShortDetailXpath + "' is not valid (verify ShortDetailXpath)")
 	}
@@ -87,7 +87,7 @@ func (xpaths LongFormatXpaths) LongFormat(table *uitable.Table, format Format, e
 		longFormatTable(table, format, e, xpaths)
 	} else {
 		for _, xpath := range xpaths {
-			s, _ := e.node.Search(xpath + "/text()")
+			s, _ := e.Node.Search(xpath + "/text()")
 			if len(s) == 1 {
 				table.AddRow(utils.Pretty(s))
 			}
@@ -106,7 +106,7 @@ func longFormatTable(table *uitable.Table, format Format, e Element, xpaths Long
 
 	tmp := make([]interface{}, len(xpaths))
 	for i, xpath := range xpaths {
-		s, _ := e.node.Search(xpath + "/text()")
+		s, _ := e.Node.Search(xpath + "/text()")
 		if len(s) == 1 {
 			tmp[i] = utils.Pretty(s)
 		}

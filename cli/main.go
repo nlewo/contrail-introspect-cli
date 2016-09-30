@@ -7,13 +7,14 @@ import "log"
 import "github.com/moovweb/gokogiri/xpath"
 import "github.com/codegangsta/cli"
 
-import "github.com/nlewo/contrail-introspect-cli/requests"
+import "github.com/nlewo/contrail-introspect-cli/descriptions"
 import "github.com/nlewo/contrail-introspect-cli/utils"
+import "github.com/nlewo/contrail-introspect-cli/collection"
 
 func multiple(vrouter string, vrf_name string, count bool) {
 	url := "http://" + vrouter + ":8085" + "/Snh_PageReq?x=begin:-1,end:-1,table:" + vrf_name + ".uc.route.0,"
 
-	var doc = requests.Load(url, false)
+	var doc = collection.Load(url, false)
 	defer doc.Free()
 	xps := xpath.Compile("//route_list/list/RouteUcSandeshData/path_list/list/PathSandeshData/nh/NhSandeshData/mc_list/../../../../../../src_ip/text()")
 	ss, _ := doc.Root().Search(xps)
@@ -51,18 +52,18 @@ func main() {
 			Destination: &hosts_file,
 		}}
 	app.Commands = []cli.Command{
-		GenCommand(requests.DescRoute(), "agent-route", "Show routes on agent"),
-		GenCommand(requests.DescItf(), "agent-itf", "Show interfaces on agent"),
-		GenCommand(requests.DescSi(), "agent-si", "Show service instances on agent"),
-		GenCommand(requests.DescVrf(), "agent-vrf", "Show vrfs on agent "),
-		GenCommand(requests.DescPeering(), "agent-peering", "Peering with controller on agent"),
-		GenCommand(requests.DescVn(), "agent-vn", "Show virtual networks on agent"),
-		GenCommand(requests.DescMpls(), "agent-mpls", "Show mpls on agent"),
-		requests.Follow(),
-		requests.Path(),
-		GenCommand(requests.DescRiSummary(), "controller-ri", "Show routing instances on controller"),
-		GenCommand(requests.DescCtrlRoute(), "controller-route", "Show routes on controller"),
-		GenCommand(requests.DescCtrlRouteSummary(), "controller-route-summary", "Show routes summary on controller"),
+		GenCommand(descriptions.Route(), "agent-route", "Show routes on agent"),
+		GenCommand(descriptions.Interface(), "agent-itf", "Show interfaces on agent"),
+		GenCommand(descriptions.Si(), "agent-si", "Show service instances on agent"),
+		GenCommand(descriptions.Vrf(), "agent-vrf", "Show vrfs on agent "),
+		GenCommand(descriptions.Peering(), "agent-peering", "Peering with controller on agent"),
+		GenCommand(descriptions.Vn(), "agent-vn", "Show virtual networks on agent"),
+		GenCommand(descriptions.Mpls(), "agent-mpls", "Show mpls on agent"),
+		descriptions.Follow(),
+		descriptions.Path(),
+		GenCommand(descriptions.RiSummary(), "controller-ri", "Show routing instances on controller"),
+		GenCommand(descriptions.CtrlRoute(), "controller-route", "Show routes on controller"),
+		GenCommand(descriptions.CtrlRouteSummary(), "controller-route-summary", "Show routes summary on controller"),
 		{
 			Name:      "agent-multiple",
 			Usage:     "List routes with multiple nexthops",

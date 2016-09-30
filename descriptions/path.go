@@ -1,4 +1,4 @@
-package requests
+package descriptions
 
 import "fmt"
 import "github.com/codegangsta/cli"
@@ -18,8 +18,8 @@ func Path() cli.Command {
 			srcIp := c.Args()[2]
 			dstIp := c.Args()[3]
 
-			page := DescCtrlRoute().PageBuilder([]string{controller, ri})
-			col := page.Load(DescCtrlRoute())
+			page := CtrlRoute().PageBuilder([]string{controller, ri})
+			col := page.Load(CtrlRoute())
 			elt := col.SearchStrict(srcIp)
 			if len(elt) < 1 {
 				log.Fatal(fmt.Sprintf("Prefix %s not found in RI %s", srcIp, ri))
@@ -29,8 +29,8 @@ func Path() cli.Command {
 				log.Fatal(err)
 			}
 
-			page = DescCtrlRoute().PageBuilder([]string{controller, ri})
-			col = page.Load(DescCtrlRoute())
+			page = CtrlRoute().PageBuilder([]string{controller, ri})
+			col = page.Load(CtrlRoute())
 			elt = col.SearchStrict(dstIp)
 			if len(elt) < 1 {
 				log.Fatal(fmt.Sprintf("Prefix %s not found in RI %s", dstIp, ri))
