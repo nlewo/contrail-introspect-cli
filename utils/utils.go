@@ -3,7 +3,7 @@ package utils
 import "sort"
 import "strings"
 
-import "github.com/moovweb/gokogiri/xml"
+import "github.com/jbowtie/gokogiri/xml"
 
 func Pretty(nodes []xml.Node) string {
 	ret := make([]string, len(nodes))

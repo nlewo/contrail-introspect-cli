@@ -6,8 +6,8 @@ import "net/http"
 import "io/ioutil"
 import "log"
 
-import "github.com/moovweb/gokogiri"
-import "github.com/moovweb/gokogiri/xml"
+import "github.com/jbowtie/gokogiri"
+import "github.com/jbowtie/gokogiri/xml"
 
 type Remote struct {
 	VrouterUrl string

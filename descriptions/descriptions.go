@@ -2,7 +2,7 @@ package descriptions
 
 import "fmt"
 import "log"
-import "github.com/moovweb/gokogiri/xml"
+import "github.com/jbowtie/gokogiri/xml"
 import "github.com/gosuri/uitable"
 
 import "github.com/nlewo/contrail-introspect-cli/utils"

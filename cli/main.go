@@ -4,7 +4,7 @@ import "fmt"
 import "os"
 import "log"
 
-import "github.com/moovweb/gokogiri/xpath"
+import "github.com/jbowtie/gokogiri/xpath"
 import "github.com/codegangsta/cli"
 
 import "github.com/nlewo/contrail-introspect-cli/descriptions"

@@ -5,7 +5,7 @@ package collection
 
 import "fmt"
 
-import "github.com/moovweb/gokogiri/xml"
+import "github.com/jbowtie/gokogiri/xml"
 
 // A Collection describes and contains a list of Elements.
 type Collection struct {
