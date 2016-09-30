@@ -29,6 +29,10 @@ type Sourcer interface {
 	Load(descCol DescCollection) Collection
 }
 
+func LoadCollection(descCol DescCollection, args []string) Collection{
+	return descCol.PageBuilder(args).Load(descCol)
+}
+
 func Load(url string, fromFile bool) *xml.XmlDocument {
 	var data []byte
 	if fromFile {
