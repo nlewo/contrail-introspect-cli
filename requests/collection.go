@@ -93,15 +93,15 @@ func (col *Collection) Search(searchPredicate func(string) string, pattern strin
 	return Elements(elements)
 }
 
-func (e Element) GetField(field string) string {
+func (e Element) GetField(field string) (string, error) {
 	s, _ := e.node.Search(fmt.Sprintf("%s/text()", field))
 	for i, _ := range s {
 		if s[i].String() != s[0].String() {
-			log.Fatal(fmt.Sprintf("All fields values must be equal (values: %s)", s))
+			return "", fmt.Errorf("All fields values must be equal (values: %s)", s)
 		}
 	}
 	if len(s) < 1 {
-		log.Fatal(fmt.Sprintf("Field %s has not be found.", field))
+		return "", fmt.Errorf("Field %s has not be found.", field)
 	}
-	return s[0].String()
+	return s[0].String(), nil
 }

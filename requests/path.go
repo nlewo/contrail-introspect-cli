@@ -24,7 +24,10 @@ func Path() cli.Command {
 			if len(elt) < 1 {
 				log.Fatal(fmt.Sprintf("Prefix %s not found in RI %s", srcIp, ri))
 			}
-			srcNode := elt[0].GetField("paths/list/ShowRoutePath/next_hop")
+			srcNode, err := elt[0].GetField("paths/list/ShowRoutePath/next_hop")
+			if err != nil {
+				log.Fatal(err)
+			}
 
 			page = DescCtrlRoute().PageBuilder([]string{controller, ri})
 			col = page.Load(DescCtrlRoute())
@@ -32,8 +35,15 @@ func Path() cli.Command {
 			if len(elt) < 1 {
 				log.Fatal(fmt.Sprintf("Prefix %s not found in RI %s", dstIp, ri))
 			}
-			dstNode := elt[0].GetField("paths/list/ShowRoutePath/next_hop")
-			label := elt[0].GetField("paths/list/ShowRoutePath/label")
+			dstNode, err := elt[0].GetField("paths/list/ShowRoutePath/next_hop")
+			if err != nil {
+				log.Fatal(err)
+			}
+
+			label, err := elt[0].GetField("paths/list/ShowRoutePath/label")
+			if err != nil {
+				log.Fatal(err)
+			}
 
 			fmt.Printf("From prefix %s on %s to dst %s on %s with label %s\n", srcIp, utils.ResolveIp(srcNode), dstIp, utils.ResolveIp(dstNode), label)
 

@@ -1,6 +1,8 @@
 package requests
 
 import "fmt"
+import "log"
+
 import "github.com/codegangsta/cli"
 
 import "github.com/nlewo/contrail-introspect-cli/utils"
@@ -28,8 +30,15 @@ func Follow() cli.Command {
 			page := DescRoute().PageBuilder(c.Args())
 			col := page.Load(DescRoute())
 			elt := col.SearchStrict(ip)
-			label := elt[0].GetField("path_list/list/PathSandeshData/label")
-			nh := elt[0].GetField("path_list/list/PathSandeshData/nh/NhSandeshData/dip")
+			label, err := elt[0].GetField("path_list/list/PathSandeshData/label");
+			if err != nil {
+				log.Fatal(err)
+			}
+			nh, err := elt[0].GetField("path_list/list/PathSandeshData/nh/NhSandeshData/dip")
+			if err != nil {
+				log.Fatal(err)
+			}
+
 			nh_fqdn := utils.ResolveIp(nh) + suffix
 			// elt.Long()
 			fmt.Printf("2. Go with MPLS label %s to %s\n", label, nh_fqdn)
@@ -39,13 +48,21 @@ func Follow() cli.Command {
 			page = DescMpls().PageBuilder(args)
 			col = page.Load(DescMpls())
 			elt = col.SearchStrict(label)
-			itf := elt[0].GetField("nh/NhSandeshData/itf")
+			itf, err := elt[0].GetField("nh/NhSandeshData/itf")
+			if err != nil {
+				log.Fatal(err)
+			}
+
 			// elt.Long()
 
 			page = DescItf().PageBuilder(args)
 			col = page.Load(DescItf())
 			elt = col.SearchStrict(itf)
-			fmt.Printf("3. To interface %s of vm %s\n", itf, elt[0].GetField("vm_uuid"))
+			vm_uuid, err := elt[0].GetField("vm_uuid")
+			if err != nil {
+				log.Fatal(err)
+			}
+			fmt.Printf("3. To interface %s of vm %s\n", itf, vm_uuid)
 			// elt.Long()
 
 			return nil

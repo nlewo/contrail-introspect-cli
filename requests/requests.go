@@ -1,6 +1,7 @@
 package requests
 
 import "fmt"
+import "log"
 import "github.com/moovweb/gokogiri/xml"
 import "github.com/gosuri/uitable"
 
@@ -176,7 +177,11 @@ func routeDetail(t *uitable.Table, e Element) {
 }
 
 func mplsDetail(t *uitable.Table, e Element) {
-	t.AddRow(fmt.Sprintf("Label: %s", e.GetField("label")))
+	label, err := e.GetField("label")
+	if err != nil {
+		log.Fatal(err)
+	}
+	t.AddRow(fmt.Sprintf("Label: %s", label))
 	nexthopDetail(t, e.node)
 	t.AddRow("")
 }
