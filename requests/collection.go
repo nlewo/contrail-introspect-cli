@@ -4,7 +4,6 @@
 package requests
 
 import "fmt"
-import "log"
 
 import "github.com/moovweb/gokogiri/xml"
 
@@ -72,16 +71,20 @@ func (col *Collection) SearchStrict(pattern string) Elements {
 	return col.Search(col.SearchXpathStrict, pattern)
 }
 
-func (col *Collection) SearchFuzzyUnique(pattern string) Element {
+func (col *Collection) SearchFuzzyUnique(pattern string) (Element, error) {
 	res := col.SearchFuzzy(pattern)
 	if len(res) > 1 {
-		fmt.Printf("Pattern %s matches:", pattern)
-		for _, e := range res {
-			fmt.Printf("\t%s", e)
-		}
-		log.Fatal("Pattern must match exactly one element")
+		return Element{}, fmt.Errorf("Pattern %s should match exactly one element. It matches %s", pattern, res)
 	}
-	return res[0]
+	return res[0], nil
+}
+
+func (col *Collection) SearchStrictUnique(pattern string) (Element, error) {
+	res := col.SearchStrict(pattern)
+	if len(res) > 1 {
+		return Element{}, fmt.Errorf("Pattern %s should match exactly one element. It matches %s", pattern, res)
+	}
+	return res[0], nil
 }
 
 func (col *Collection) Search(searchPredicate func(string) string, pattern string) Elements {
