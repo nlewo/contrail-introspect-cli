@@ -5,6 +5,8 @@ import "os"
 import "net/http"
 import "io/ioutil"
 import "log"
+import "strings"
+import "strconv"
 
 import "github.com/jbowtie/gokogiri"
 import "github.com/jbowtie/gokogiri/xml"
@@ -69,6 +71,23 @@ func fromDataToCollection(data []byte, descCol DescCollection, url string) Colle
 	return xmlToCollection(dataToXml(data), descCol, url)
 }
 
+// Split the url with format host:port into host and port. If port is
+// not specified, the defaultPort value is used.
+func splitUrl(url string, defaultPort int) (host string, port int) {
+	elts := strings.Split(url, ":")
+	host = elts[0]
+	port = defaultPort
+	if len(elts) == 2 {
+		t, e := strconv.Atoi(elts[1])
+		if e != nil {
+			log.Printf("Port %s in url %s is not a valid port number. Default port %d is used instead.", elts[1], url, defaultPort)
+		} else {
+			port = t
+		}
+	}
+	return host, port
+}
+
 func (file File) Load(descCol DescCollection) Collection {
 	f, _ := os.Open(file.Path)
 	data, _ := ioutil.ReadAll(f)
@@ -76,7 +95,8 @@ func (file File) Load(descCol DescCollection) Collection {
 }
 
 func (page Remote) Load(descCol DescCollection) Collection {
-	url := fmt.Sprintf("http://%s:%d/Snh_PageReq?x=begin:-1,end:-1,table:%s,", page.VrouterUrl, page.Port, page.Table)
+	host, port := splitUrl(page.VrouterUrl, page.Port)
+	url := fmt.Sprintf("http://%s:%d/Snh_PageReq?x=begin:-1,end:-1,table:%s,", host, port, page.Table)
 	resp, err := http.Get(url)
 	if err != nil {
 		log.Fatal(err)
@@ -86,7 +106,8 @@ func (page Remote) Load(descCol DescCollection) Collection {
 }
 
 func (page Webui) Load(descCol DescCollection) Collection {
-	url := fmt.Sprintf("http://%s:%d/%s", page.VrouterUrl, page.Port, page.Path)
+	host, port := splitUrl(page.VrouterUrl, page.Port)
+	url := fmt.Sprintf("http://%s:%d/%s", host, port, page.Path)
 	var data []byte
 	var node xml.Node
 
