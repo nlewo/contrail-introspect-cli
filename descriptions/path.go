@@ -19,7 +19,11 @@ func Path() cli.Command {
 			dstIp := c.Args()[3]
 
 			page := CtrlRoute().PageBuilder([]string{controller, ri})
-			col := page.Load(CtrlRoute())
+			col, e := page.Load(CtrlRoute())
+			if e != nil {
+				log.Fatal(e)
+			}
+
 			elt := col.SearchStrict(srcIp)
 			if len(elt) < 1 {
 				log.Fatal(fmt.Sprintf("Prefix %s not found in RI %s", srcIp, ri))
@@ -30,7 +34,10 @@ func Path() cli.Command {
 			}
 
 			page = CtrlRoute().PageBuilder([]string{controller, ri})
-			col = page.Load(CtrlRoute())
+			col, e = page.Load(CtrlRoute())
+			if e != nil {
+				log.Fatal(e)
+			}
 			elt = col.SearchStrict(dstIp)
 			if len(elt) < 1 {
 				log.Fatal(fmt.Sprintf("Prefix %s not found in RI %s", dstIp, ri))

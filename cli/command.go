@@ -3,6 +3,7 @@ package main
 import "fmt"
 import "os"
 import "strings"
+import "log"
 
 import "github.com/codegangsta/cli"
 
@@ -53,7 +54,12 @@ func GenCommand(descCol collection.DescCollection, name string, usage string) cl
 				}
 				page = descCol.PageBuilder(c.Args())
 			}
-			col := page.Load(descCol)
+			col, e := page.Load(descCol)
+			if e != nil {
+				log.Fatal(e)
+			}
+
+			
 			if c.IsSet("url") {
 				fmt.Println(col.Url)
 				return nil

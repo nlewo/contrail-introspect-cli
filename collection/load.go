@@ -28,10 +28,10 @@ type File struct {
 }
 
 type Sourcer interface {
-	Load(descCol DescCollection) Collection
+	Load(descCol DescCollection) (Collection, error)
 }
 
-func LoadCollection(descCol DescCollection, args []string) Collection{
+func LoadCollection(descCol DescCollection, args []string) (Collection, error) {
 	return descCol.PageBuilder(args).Load(descCol)
 }
 
@@ -88,24 +88,24 @@ func splitUrl(url string, defaultPort int) (host string, port int) {
 	return host, port
 }
 
-func (file File) Load(descCol DescCollection) Collection {
+func (file File) Load(descCol DescCollection) (Collection, error) {
 	f, _ := os.Open(file.Path)
 	data, _ := ioutil.ReadAll(f)
-	return fromDataToCollection(data, descCol, "file://"+file.Path)
+	return fromDataToCollection(data, descCol, "file://"+file.Path), nil
 }
 
-func (page Remote) Load(descCol DescCollection) Collection {
+func (page Remote) Load(descCol DescCollection) (Collection, error) {
 	host, port := splitUrl(page.VrouterUrl, page.Port)
 	url := fmt.Sprintf("http://%s:%d/Snh_PageReq?x=begin:-1,end:-1,table:%s,", host, port, page.Table)
 	resp, err := http.Get(url)
 	if err != nil {
-		log.Fatal(err)
+		return Collection{}, err
 	}
 	data, _ := ioutil.ReadAll(resp.Body)
-	return fromDataToCollection(data, descCol, url)
+	return fromDataToCollection(data, descCol, url), nil
 }
 
-func (page Webui) Load(descCol DescCollection) Collection {
+func (page Webui) Load(descCol DescCollection) (Collection, error) {
 	host, port := splitUrl(page.VrouterUrl, page.Port)
 	url := fmt.Sprintf("http://%s:%d/%s", host, port, page.Path)
 	var data []byte
@@ -113,7 +113,7 @@ func (page Webui) Load(descCol DescCollection) Collection {
 
 	resp, err := http.Get(url)
 	if err != nil {
-		log.Fatal(err)
+		return Collection{}, err
 	}
 	data, _ = ioutil.ReadAll(resp.Body)
 	node = dataToXml(data)
@@ -144,5 +144,5 @@ func (page Webui) Load(descCol DescCollection) Collection {
 		}
 	}
 
-	return xmlToCollection(node, descCol, url)
+	return xmlToCollection(node, descCol, url), nil
 }
