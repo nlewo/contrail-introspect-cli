@@ -74,7 +74,7 @@ func (col *Collection) SearchStrict(pattern string) Elements {
 func (col *Collection) SearchFuzzyUnique(pattern string) (Element, error) {
 	res := col.SearchFuzzy(pattern)
 	if len(res) != 1 {
-		return Element{}, fmt.Errorf("Pattern %s should match exactly one element. But it matches %s", pattern, res)
+		return Element{}, fmt.Errorf("Pattern %s should match exactly one element (instead of '%s')", pattern, res)
 	}
 	return res[0], nil
 }
@@ -82,7 +82,7 @@ func (col *Collection) SearchFuzzyUnique(pattern string) (Element, error) {
 func (col *Collection) SearchStrictUnique(pattern string) (Element, error) {
 	res := col.SearchStrict(pattern)
 	if len(res) != 1 {
-		return Element{}, fmt.Errorf("Pattern %s should match exactly one element. But it matches %s", pattern, res)
+		return Element{}, fmt.Errorf("Pattern %s should match exactly one element (instead of '%s')", pattern, res)
 	}
 	return res[0], nil
 }
