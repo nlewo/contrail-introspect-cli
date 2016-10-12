@@ -26,9 +26,13 @@ func (c Collection) Xml() {
 }
 
 func (e Element) Short() {
+	if e.desc.ShortDetailXpath == "" {
+		log.Fatal("ShortDetailXpath is not defined. Use XML output instead (-x option)")
+		return
+	}
 	s, _ := e.Node.Search(e.desc.ShortDetailXpath)
 	if len(s) != 1 {
-		log.Fatal("Xpath '" + e.desc.ShortDetailXpath + "' is not valid (verify ShortDetailXpath)")
+		log.Fatal("Xpath '" + e.desc.ShortDetailXpath + "' is not valid (check your ShortDetailXpath definition)")
 	}
 	fmt.Printf("%s\n", s[0])
 }
