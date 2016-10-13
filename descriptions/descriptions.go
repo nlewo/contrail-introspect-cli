@@ -38,14 +38,13 @@ func Peering() collection.DescCollection {
 	}
 }
 
-
 func Si() collection.DescCollection {
 	return collection.DescCollection{
 		BaseXpath: "__ServiceInstanceResp_list/ServiceInstanceResp/service_instance_list/list",
 		DescElt: collection.DescElement{
 			ShortDetailXpath: "uuid/text()",
 			// LongDetailHelp: []string{"Service instance uuid", "Type of service instance", "Virtual machine uuid"},
-			LongDetail:       collection.LongFormatXpaths([]string{"uuid", "service_type", "instance_id"}),
+			LongDetail: collection.LongFormatXpaths([]string{"uuid", "service_type", "instance_id"}),
 		},
 		PageArgs: []string{"vrouter-fqdn"},
 		PageBuilder: func(args []string) collection.Sourcer {
@@ -111,7 +110,6 @@ func RiSummary() collection.DescCollection {
 		PrimaryField: "name",
 	}
 }
-
 
 func CtrlRouteSummary() collection.DescCollection {
 	return collection.DescCollection{
@@ -210,4 +208,26 @@ func controllerRoutePath(t *uitable.Table, e collection.Element) {
 		t.AddRow("    "+utils.Pretty(protocol), utils.Pretty(nhs), utils.Pretty(localPref), utils.Pretty(peers), utils.Pretty(label))
 	}
 	t.AddRow("")
+}
+
+func AgentPing() collection.DescCollection {
+	return collection.DescCollection{
+		PageArgs: []string{"vrouter-fqdn", "vrf-name", "source-ip", "source-port", "dest-ip", "dest-port"},
+		PageBuilder: func(args []string) collection.Sourcer {
+			sourceIp := args[2]
+			sourcePort := args[3]
+			destIp := args[4]
+			destPort := args[5]
+			vrfName := args[1]
+
+			path := fmt.Sprintf("Snh_PingReq?source_ip=%s&source_port=%s&dest_ip=%s&dest_port=%s&protocol=6&vrf_name=%s&packet_size=&count=1&interval=",
+				sourceIp, sourcePort, destIp, destPort, vrfName)
+			return collection.Webui{Path: path, VrouterUrl: args[0], Port: 8085}
+		},
+		BaseXpath: "__PingResp_list",
+		DescElt: collection.DescElement{
+			ShortDetailXpath: "resp/text()",
+			LongDetail:       collection.LongFormatXpaths([]string{"resp", "rtt"}),
+		},
+	}
 }

@@ -27,7 +27,6 @@ func multiple(vrouter string, vrf_name string, count bool) {
 	}
 }
 
-
 func main() {
 	var count bool
 	var hosts_file string
@@ -52,6 +51,7 @@ func main() {
 			Destination: &hosts_file,
 		}}
 	app.Commands = []cli.Command{
+		GenCommand(descriptions.AgentPing(), "agent-ping", "Generate tcp ping in a vrf"),
 		GenCommand(descriptions.Route(), "agent-route", "Show routes on agent"),
 		GenCommand(descriptions.Interface(), "agent-itf", "Show interfaces on agent"),
 		GenCommand(descriptions.Si(), "agent-si", "Show service instances on agent"),
