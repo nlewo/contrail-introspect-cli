@@ -5,6 +5,10 @@ CLI on ContraiL Introspects
 
 ## Installation
 
+You can download the latest 
+[contrail-introspect-cli binary](https://github.com/nlewo/contrail-introspect-cli-binaries/raw/master/contrail-introspect-cli)
+or build it:
+
     $ go get github.com/nlewo/contrail-introspect-cli/contrail-introspect-cli
 
 ## Usage Examples
