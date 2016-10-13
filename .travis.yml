@@ -5,7 +5,7 @@ go:
 
 after_success:
   - echo "Pushing binaries to contrail-introspect-cli-binaries repo"
-  - export BINARY_NAME=cli
+  - export BINARY_NAME=contrail-introspect-cli
   - export BINARIES_REPO=https://nlewo:${GITHUB_TOKEN}@github.com/nlewo/contrail-introspect-cli-binaries
   - cd "$TRAVIS_BUILD_DIR"
   - export COMMIT_ID=$(git -C ${TRAVIS_BUILD_DIR} rev-parse HEAD)
