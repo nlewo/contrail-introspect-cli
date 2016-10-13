@@ -2,3 +2,16 @@ language: go
 
 go:
   - 1.5
+
+after_success:
+  - echo "Pushing binaries to contrail-introspect-cli-binaries repo"
+  - export BINARY_NAME=cli
+  - export BINARIES_REPO=https://nlewo:${GITHUB_TOKEN}@github.com/nlewo/contrail-introspect-cli-binaries
+  - cd "$TRAVIS_BUILD_DIR"
+  - export COMMIT_ID=$(git -C ${TRAVIS_BUILD_DIR} rev-parse HEAD)
+  - git clone -q ${BINARIES_REPO} 2>/dev/null
+  - cd contrail-introspect-cli-binaries
+  - cp $GOPATH/bin/${BINARY_NAME} ./contrail-introspect-cli
+  - git add .
+  - git -c user.name='travis' -c user.email='travis' commit -m "contrail-introspect-cli commit ${COMMIT_ID}"
+  - git push -f -q origin master 2>/dev/null
