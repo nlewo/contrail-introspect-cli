@@ -32,7 +32,9 @@ func (e Element) Short() {
 	}
 	s, _ := e.Node.Search(e.desc.ShortDetailXpath)
 	if len(s) != 1 {
-		log.Fatal("Xpath '" + e.desc.ShortDetailXpath + "' is not valid (check your ShortDetailXpath definition)")
+		return
+		// TODO Debug mode
+		//log.Fatal("Xpath '" + e.desc.ShortDetailXpath + "' is not valid (check your ShortDetailXpath definition)")
 	}
 	fmt.Printf("%s\n", s[0])
 }
