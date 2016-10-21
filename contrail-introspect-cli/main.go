@@ -59,6 +59,7 @@ func main() {
 		GenCommand(descriptions.Peering(), "agent-peering", "Peering with controller on agent"),
 		GenCommand(descriptions.Vn(), "agent-vn", "Show virtual networks on agent"),
 		GenCommand(descriptions.Mpls(), "agent-mpls", "Show mpls on agent"),
+		descriptions.Ping(),
 		descriptions.Follow(),
 		descriptions.Path(),
 		GenCommand(descriptions.RiSummary(), "controller-ri", "Show routing instances on controller"),
