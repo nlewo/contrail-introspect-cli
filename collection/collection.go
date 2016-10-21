@@ -55,20 +55,36 @@ func (col *Collection) Init() {
 	}
 }
 
-func (col *Collection) SearchXpathFuzzy(pattern string) string {
-	return col.descCol.BaseXpath + "/*/" + col.descCol.PrimaryField + "[contains(text(),'" + pattern + "')]/.."
+// If key == "", the PrimaryField is used
+func (col *Collection) SearchXpathFuzzy(key string, pattern string) string {
+	if key == "" {
+		key = col.descCol.PrimaryField
+	}
+	return col.descCol.BaseXpath + "/*/" + key + "[contains(text(),'" + pattern + "')]/.."
 }
 
-func (col *Collection) SearchXpathStrict(pattern string) string {
-	return col.descCol.BaseXpath + "/*/" + col.descCol.PrimaryField + "[text()='" + pattern + "']/.."
+// If key == "", the PrimaryField is used
+func (col *Collection) SearchXpathStrict(key string, pattern string) string {
+	if key == "" {
+		key = col.descCol.PrimaryField
+	}
+	return col.descCol.BaseXpath + "/*/" + key + "[text()='" + pattern + "']/.."
 }
 
 func (col *Collection) SearchFuzzy(pattern string) Elements {
-	return col.Search(col.SearchXpathFuzzy, pattern)
+	return col.Search(col.SearchXpathFuzzy, "", pattern)
 }
 
 func (col *Collection) SearchStrict(pattern string) Elements {
-	return col.Search(col.SearchXpathStrict, pattern)
+	return col.Search(col.SearchXpathStrict, "", pattern)
+}
+
+func (col *Collection) SearchStrictUniqueByKey(key string, pattern string) (Element, error) {
+	res := col.Search(col.SearchXpathStrict, key, pattern)
+	if len(res) != 1 {
+		return Element{}, fmt.Errorf("Pattern %s should match exactly one element (instead of '%s')", pattern, res)
+	}
+	return res[0], nil
 }
 
 func (col *Collection) SearchFuzzyUnique(pattern string) (Element, error) {
@@ -87,8 +103,8 @@ func (col *Collection) SearchStrictUnique(pattern string) (Element, error) {
 	return res[0], nil
 }
 
-func (col *Collection) Search(searchPredicate func(string) string, pattern string) Elements {
-	ss, _ := col.rootNode.Search(searchPredicate(pattern))
+func (col *Collection) Search(searchPredicate func(string, string) string, key string, pattern string) Elements {
+	ss, _ := col.rootNode.Search(searchPredicate(key, pattern))
 	var elements []Element = make([]Element, len(ss))
 	for i, s := range ss {
 		elements[i] = Element{Node: s, desc: col.descCol.DescElt}
