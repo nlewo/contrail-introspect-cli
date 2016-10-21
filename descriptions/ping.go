@@ -1,10 +1,13 @@
 package descriptions
 
-import "fmt"
-import "log"
-import "github.com/codegangsta/cli"
+import (
+	"fmt"
+	"log"
+	"os"
 
-import "github.com/nlewo/contrail-introspect-cli/collection"
+	"github.com/nlewo/contrail-introspect-cli/collection"
+)
+import "github.com/codegangsta/cli"
 
 func Ping() cli.Command {
 	return cli.Command{
@@ -12,6 +15,11 @@ func Ping() cli.Command {
 		Usage:     "Generate one ping packet from a port id to dest ip and port number",
 		ArgsUsage: "vrouter-fqdn port-uuid dest-ip dest-port",
 		Action: func(c *cli.Context) error {
+			if c.NArg() != 4 {
+				fmt.Printf("Wrong argument number\n")
+				cli.ShowSubcommandHelp(c)
+				os.Exit(1)
+			}
 			agent := c.Args()[0]
 			portUuid := c.Args()[1]
 			destIp := c.Args()[2]
