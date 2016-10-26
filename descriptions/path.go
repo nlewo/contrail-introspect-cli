@@ -1,22 +1,22 @@
 package descriptions
 
 import "fmt"
-import "github.com/codegangsta/cli"
+import "gopkg.in/urfave/cli.v2"
 import "log"
 
 import "github.com/nlewo/contrail-introspect-cli/utils"
 
-func Path() cli.Command {
-	return cli.Command{
+func Path() *cli.Command {
+	return &cli.Command{
 		Name:      "controller-path",
 		Usage:     "Find the path to go from a prefix to another on in a routing instance",
 		ArgsUsage: "controller-fqdn ri source-prefix dest-prefix",
 		Action: func(c *cli.Context) error {
 
-			controller := c.Args()[0]
-			ri := c.Args()[1]
-			srcIp := c.Args()[2]
-			dstIp := c.Args()[3]
+			controller := c.Args().Get(0)
+			ri := c.Args().Get(1)
+			srcIp := c.Args().Get(2)
+			dstIp := c.Args().Get(3)
 
 			page := CtrlRoute().PageBuilder([]string{controller, ri})
 			col, e := page.Load(CtrlRoute())

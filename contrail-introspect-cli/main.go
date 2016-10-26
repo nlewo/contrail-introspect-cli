@@ -5,7 +5,7 @@ import "os"
 import "log"
 
 import "github.com/jbowtie/gokogiri/xpath"
-import "github.com/codegangsta/cli"
+import cli "gopkg.in/urfave/cli.v2"
 
 import "github.com/nlewo/contrail-introspect-cli/descriptions"
 import "github.com/nlewo/contrail-introspect-cli/utils"
@@ -31,26 +31,26 @@ func main() {
 	var count bool
 	var hosts_file string
 
-	app := cli.NewApp()
+	app := (&cli.App{})
 	app.Name = "contrail-introspect-cli"
 	app.Usage = "CLI on ContraiL Introspects"
 	app.Version = "0.0.4"
-	app.EnableBashCompletion = true
+	app.EnableShellCompletion = true
 	app.Before = func(c *cli.Context) error {
-		if c.GlobalIsSet("hosts") {
+		if c.IsSet("hosts") {
 			var err error
-			utils.HostMap, err = utils.LoadHostsFile(c.GlobalString("hosts"))
+			utils.HostMap, err = utils.LoadHostsFile(c.String("hosts"))
 			return err
 		}
 		return nil
 	}
 	app.Flags = []cli.Flag{
-		cli.StringFlag{
+		&cli.StringFlag{
 			Name:        "hosts",
 			Usage:       "host file to do DNS resolution",
 			Destination: &hosts_file,
 		}}
-	app.Commands = []cli.Command{
+	app.Commands = []*cli.Command{
 		GenCommand(descriptions.AgentPing(), "agent-ping", "Generate tcp ping in a vrf"),
 		GenCommand(descriptions.Route(), "agent-route", "Show routes on agent"),
 		GenCommand(descriptions.Interface(), "agent-itf", "Show interfaces on agent"),
@@ -70,7 +70,7 @@ func main() {
 			Usage:     "List routes with multiple nexthops",
 			ArgsUsage: "vrouter vrf_name",
 			Flags: []cli.Flag{
-				cli.BoolFlag{
+				&cli.BoolFlag{
 					Name:        "count",
 					Destination: &count,
 				}},
@@ -78,8 +78,8 @@ func main() {
 				if c.NArg() != 2 {
 					log.Fatal("Wrong argument number!")
 				}
-				vrouter := c.Args()[0]
-				vrf_name := c.Args()[1]
+				vrouter := c.Args().Get(0)
+				vrf_name := c.Args().Get(1)
 				multiple(vrouter, vrf_name, count)
 				return nil
 			},

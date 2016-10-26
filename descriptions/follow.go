@@ -3,18 +3,18 @@ package descriptions
 import "fmt"
 import "log"
 
-import "github.com/codegangsta/cli"
+import cli "gopkg.in/urfave/cli.v2"
 
 import "github.com/nlewo/contrail-introspect-cli/utils"
 
-func Follow() cli.Command {
-	return cli.Command{
+func Follow() *cli.Command {
+	return &cli.Command{
 		Name:      "agent-follow",
 		Usage:     "From a compute node, a vrf and a route, follow the route to destination",
 		ArgsUsage: "vrouter-fqdn vrf-name route-prefix",
 
 		Flags: []cli.Flag{
-			cli.StringFlag{
+			&cli.StringFlag{
 				Name:  "fqdn",
 				Usage: "Suffix appended to introspect hostnames",
 			}},
@@ -24,16 +24,16 @@ func Follow() cli.Command {
 			if c.String("fqdn") != "" {
 				suffix = "." + c.String("fqdn")
 			}
-			ip := c.Args()[2]
+			ip := c.Args().Get(2)
 
-			fmt.Printf("1. Starting on %s for the route %s in the vrf %s\n", c.Args()[0], ip, c.Args()[1])
-			page := Route().PageBuilder(c.Args())
+			fmt.Printf("1. Starting on %s for the route %s in the vrf %s\n", c.Args().Get(0), ip, c.Args().Get(1))
+			page := Route().PageBuilder(c.Args().Slice())
 			col, e := page.Load(Route())
 			if e != nil {
 				log.Fatal(e)
 			}
 			elt := col.SearchStrict(ip)
-			label, err := elt[0].GetField("path_list/list/PathSandeshData/label");
+			label, err := elt[0].GetField("path_list/list/PathSandeshData/label")
 			if err != nil {
 				log.Fatal(err)
 			}

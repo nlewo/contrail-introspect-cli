@@ -7,10 +7,10 @@ import (
 
 	"github.com/nlewo/contrail-introspect-cli/collection"
 )
-import "github.com/codegangsta/cli"
+import cli "gopkg.in/urfave/cli.v2"
 
-func Ping() cli.Command {
-	return cli.Command{
+func Ping() *cli.Command {
+	return &cli.Command{
 		Name:      "ping",
 		Usage:     "Generate one ping packet from a port id to dest ip and port number",
 		ArgsUsage: "vrouter-fqdn port-uuid dest-ip dest-port",
@@ -20,10 +20,10 @@ func Ping() cli.Command {
 				cli.ShowSubcommandHelp(c)
 				os.Exit(1)
 			}
-			agent := c.Args()[0]
-			portUuid := c.Args()[1]
-			destIp := c.Args()[2]
-			destPort := c.Args()[3]
+			agent := c.Args().Get(0)
+			portUuid := c.Args().Get(1)
+			destIp := c.Args().Get(2)
+			destPort := c.Args().Get(3)
 			col, e := collection.LoadCollection(Interface(), []string{agent})
 			if e != nil {
 				log.Fatal(fmt.Sprintf("Interface can not be loaded: %s", e))
