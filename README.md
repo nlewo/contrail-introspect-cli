@@ -11,6 +11,11 @@ or build it:
 
     $ go get github.com/nlewo/contrail-introspect-cli/contrail-introspect-cli
 
+To enable bash completion
+
+    $ eval `contrail-introspect-cli --init-completion bash`
+
+
 ## Usage Examples
 
 - List interfaces
