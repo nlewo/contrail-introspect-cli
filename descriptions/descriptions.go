@@ -8,6 +8,33 @@ import "github.com/gosuri/uitable"
 import "github.com/nlewo/contrail-introspect-cli/utils"
 import "github.com/nlewo/contrail-introspect-cli/collection"
 
+func CtrlIfmap() collection.DescCollection {
+	return collection.DescCollection{
+		BaseXpath: "IFMapTableShowResp/ifmap_db/list",
+		DescElt: collection.DescElement{
+			ShortDetailXpath: "node_name/text()",
+			LongDetail:       collection.LongFormatFn(ifmapNeighbors),
+		},
+		PageArgs: []string{"controller-fqdn", "table-name", "search-string"},
+		PageBuilder: func(args []string) collection.Sourcer {
+			path := fmt.Sprintf("Snh_IFMapTableShowReq?table_name=%s&search_string=%s", args[1], args[2])
+			return collection.Webui{Path: path, VrouterUrl: args[0], Port: 8083}
+		},
+		PrimaryField: "node_name",
+	}
+}
+
+func ifmapNeighbors(t *uitable.Table, e collection.Element) {
+	t.AddRow("Node name", "Neighbors")
+	nodeName, _ := e.Node.Search("node_name/text()")
+	t.AddRow(fmt.Sprintf("%s", nodeName[0]))
+	neighbors, _ := e.Node.Search("neighbors/list/element/text()")
+	for _, n := range neighbors {
+		t.AddRow("", fmt.Sprintf("%s", n))
+	}
+	t.AddRow("", "")
+}
+
 func Interface() collection.DescCollection {
 	return collection.DescCollection{
 		BaseXpath: "__ItfResp_list/ItfResp/itf_list/list",

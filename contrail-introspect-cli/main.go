@@ -51,6 +51,7 @@ func main() {
 			Destination: &hosts_file,
 		}}
 	app.Commands = []*cli.Command{
+		GenCommand(descriptions.CtrlIfmap(), "controller-ifmap", "Query the ifmap through the controller"),
 		GenCommand(descriptions.AgentPing(), "agent-ping", "Generate tcp ping in a vrf"),
 		GenCommand(descriptions.Route(), "agent-route", "Show routes on agent"),
 		GenCommand(descriptions.Interface(), "agent-itf", "Show interfaces on agent"),
