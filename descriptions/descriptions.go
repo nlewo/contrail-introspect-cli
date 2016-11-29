@@ -103,7 +103,7 @@ func Vrf() collection.DescCollection {
 		BaseXpath: "__VrfListResp_list/VrfListResp/vrf_list/list",
 		DescElt: collection.DescElement{
 			ShortDetailXpath: "name/text()",
-			LongDetail:       collection.LongFormatXpaths([]string{"name", "uc_index"}),
+			LongDetail:       collection.LongFormatXpaths([]string{"name", "ucindex"}),
 		},
 		PrimaryField: "name",
 	}
