@@ -8,7 +8,7 @@ import "github.com/nlewo/contrail-introspect-cli/utils"
 
 // Several representations of resources
 type Shower interface {
-	Long()
+	Long(maxColWidth uint)
 	Short()
 	Xml()
 }
@@ -46,18 +46,18 @@ func (elts Elements) Short() {
 		e.Short()
 	}
 }
-func (e Element) Long() {
+func (e Element) Long(maxColWidth uint) {
 	table := uitable.New()
-	table.MaxColWidth = 80
+	table.MaxColWidth = maxColWidth
 	e.desc.LongDetail.LongFormat(table, FORMAT_TEXT, e)
 	fmt.Println(table)
 }
-func (col Collection) Long() {
-	Elements(col.elements).Long()
+func (col Collection) Long(maxColWidth uint) {
+	Elements(col.elements).Long(maxColWidth)
 }
-func (elts Elements) Long() {
+func (elts Elements) Long(maxColWidth uint) {
 	table := uitable.New()
-	table.MaxColWidth = 80
+	table.MaxColWidth = maxColWidth
 	for i, e := range elts {
 		format := FORMAT_TABLE
 		if i == 0 {

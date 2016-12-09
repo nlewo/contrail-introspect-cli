@@ -42,6 +42,11 @@ func GenCommand(descCol collection.DescCollection, name string, usage string) *c
 				Usage: fmt.Sprintf("Strict search by %s", descCol.PrimaryField),
 				Value: "",
 			},
+			&cli.UintFlag{
+				Name:  "max-col-width",
+				Usage: fmt.Sprintf("Set the maximum column width used by long output. 0 is unlimited."),
+				Value: 80,
+			},
 		},
 		Action: func(c *cli.Context) error {
 			var page collection.Sourcer
@@ -79,7 +84,7 @@ func GenCommand(descCol collection.DescCollection, name string, usage string) *c
 				return nil
 			}
 			if c.IsSet("long") {
-				list.Long()
+				list.Long(c.Uint("max-col-width"))
 				return nil
 			}
 			list.Short()
