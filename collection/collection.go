@@ -11,6 +11,7 @@ import "github.com/jbowtie/gokogiri/xml"
 type Collection struct {
 	Url     string
 	descCol DescCollection
+	doc     *xml.XmlDocument
 	// The node containing the whole XML, for instance the whole
 	// loaded XML Page.
 	rootNode xml.Node
@@ -53,6 +54,12 @@ func (col *Collection) Init() {
 	for i, s := range ss {
 		col.elements[i] = Element{Node: s, desc: col.descCol.DescElt}
 	}
+}
+
+func (col *Collection) Close() {
+	// Collection must be closed manually to free memory
+	// https://github.com/moovweb/gokogiri/issues/36
+	col.doc.Free()
 }
 
 // If key == "", the PrimaryField is used
