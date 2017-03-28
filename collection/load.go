@@ -1,15 +1,17 @@
 package collection
 
-import "fmt"
-import "os"
-import "net/http"
-import "io/ioutil"
-import "log"
-import "strings"
-import "strconv"
+import (
+	"fmt"
+	"io/ioutil"
+	"log"
+	"net/http"
+	"os"
+	"strconv"
+	"strings"
 
-import "github.com/jbowtie/gokogiri"
-import "github.com/jbowtie/gokogiri/xml"
+	"github.com/jbowtie/gokogiri"
+	"github.com/jbowtie/gokogiri/xml"
+)
 
 type Remote struct {
 	VrouterUrl string
@@ -51,24 +53,25 @@ func Load(url string, fromFile bool) *xml.XmlDocument {
 	return (doc)
 }
 
-func dataToXml(data []byte) xml.Node {
+func dataToXml(data []byte) (*xml.XmlDocument, xml.Node) {
 	doc, _ := gokogiri.ParseXml(data)
 	ss, _ := doc.Search("/")
 	if len(ss) < 1 {
 		log.Fatal("Failed to parse XML")
 	}
-	return ss[0]
+	return doc, ss[0]
 }
 
-func xmlToCollection(node xml.Node, descCol DescCollection, url string) Collection {
-	col := Collection{rootNode: node, descCol: descCol, Url: url}
+func xmlToCollection(doc *xml.XmlDocument, node xml.Node, descCol DescCollection, url string) Collection {
+	col := Collection{doc: doc, rootNode: node, descCol: descCol, Url: url}
 	col.Init()
 	return col
 }
 
 // Parse data to XML
 func fromDataToCollection(data []byte, descCol DescCollection, url string) Collection {
-	return xmlToCollection(dataToXml(data), descCol, url)
+	doc, root := dataToXml(data)
+	return xmlToCollection(doc, root, descCol, url)
 }
 
 // Split the url with format host:port into host and port. If port is
@@ -110,13 +113,14 @@ func (page Webui) Load(descCol DescCollection) (Collection, error) {
 	url := fmt.Sprintf("http://%s:%d/%s", host, port, page.Path)
 	var data []byte
 	var node xml.Node
+	var doc *xml.XmlDocument
 
 	resp, err := http.Get(url)
 	if err != nil {
 		return Collection{}, err
 	}
 	data, _ = ioutil.ReadAll(resp.Body)
-	node = dataToXml(data)
+	doc, node = dataToXml(data)
 
 	// Handle controller pagination
 	//
@@ -132,7 +136,7 @@ func (page Webui) Load(descCol DescCollection) (Collection, error) {
 				log.Fatal(err)
 			}
 			data, _ = ioutil.ReadAll(resp.Body)
-			currentNode = dataToXml(data)
+			doc, currentNode = dataToXml(data)
 			newLists, _ := currentNode.Search("/*/*/list")
 
 			for _, l := range newLists {
@@ -144,5 +148,5 @@ func (page Webui) Load(descCol DescCollection) (Collection, error) {
 		}
 	}
 
-	return xmlToCollection(node, descCol, url), nil
+	return xmlToCollection(doc, node, descCol, url), nil
 }
