@@ -187,17 +187,20 @@ func Mpls() collection.DescCollection {
 
 func routeDetail(t *uitable.Table, e collection.Element) {
 	srcIp, _ := e.Node.Search("src_ip/text()")
-	t.AddRow(fmt.Sprintf("Src %s", srcIp[0]))
+	srcPrefix, _ := e.Node.Search("src_plen/text()")
+	t.AddRow(fmt.Sprintf("Src %s/%s", srcIp[0], srcPrefix[0]))
 	paths, _ := e.Node.Search("path_list/list/PathSandeshData")
 
-	t.AddRow("    Dst", "Peers", "MPLS label", "Interface", "Dest VN")
+	t.AddRow("    Dst", "Peers", "MPLS label", "Local Pref", "Interface", "Dest VN")
 	for _, path := range paths {
 		nhs, _ := path.Search("nh/NhSandeshData//dip/text()")
 		peers, _ := path.Search("peer/text()")
 		label, _ := path.Search("label/text()")
+		pref, _ := path.Search("path_preference_data/PathPreferenceSandeshData/preference/text()")
 		destvn, _ := path.Search("dest_vn/text()")
 		itf, _ := path.Search("nh/NhSandeshData/itf/text()")
-		t.AddRow("    "+utils.Pretty(nhs), utils.Pretty(peers), utils.Pretty(label), utils.Pretty(itf), utils.Pretty(destvn))
+		t.AddRow("    "+utils.Pretty(nhs), utils.Pretty(peers), utils.Pretty(label),
+			 utils.Pretty(pref), utils.Pretty(itf), utils.Pretty(destvn))
 	}
 	t.AddRow("")
 }
