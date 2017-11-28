@@ -170,6 +170,22 @@ func CtrlRoute() collection.DescCollection {
 	}
 }
 
+func CtrlNeighbor() collection.DescCollection {
+	return collection.DescCollection{
+		PageArgs: []string{"controller-fqdn"},
+		PageBuilder: func(args []string) collection.Sourcer {
+			path := "Snh_ShowBgpNeighborSummaryReq"
+			return collection.Webui{Path: path, VrouterUrl: args[0], Port: 8083}
+		},
+		BaseXpath: "ShowBgpNeighborSummaryResp/neighbors/list",
+		DescElt: collection.DescElement{
+			ShortDetailXpath: "peer/text()",
+			LongDetail:       collection.LongFormatXpaths([]string{"peer", "peer_address", "peer_id", "peer_asn", "peer_type", "state", "local_address", "local_asn", "primary_path_count"}),
+		},
+		PrimaryField: "peer",
+	}
+}
+
 func Mpls() collection.DescCollection {
 	return collection.DescCollection{
 		PageArgs: []string{"vrouter-fqdn"},
