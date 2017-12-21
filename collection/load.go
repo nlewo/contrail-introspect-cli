@@ -37,20 +37,33 @@ func LoadCollection(descCol DescCollection, args []string) (Collection, error) {
 	return descCol.PageBuilder(args).Load(descCol)
 }
 
-func Load(url string, fromFile bool) *xml.XmlDocument {
-	var data []byte
+func Load(url string, fromFile bool) (doc *xml.XmlDocument, err error) {
+	var (
+		data []byte
+		file *os.File
+		resp *http.Response
+	)
 	if fromFile {
-		file, _ := os.Open(url)
-		data, _ = ioutil.ReadAll(file)
-	} else {
-		resp, err := http.Get(url)
+		file, err = os.Open(url)
 		if err != nil {
-			log.Fatal(err)
+			return
 		}
-		data, _ = ioutil.ReadAll(resp.Body)
+		data, err = ioutil.ReadAll(file)
+		if err != nil {
+			return
+		}
+	} else {
+		resp, err = http.Get(url)
+		if err != nil {
+			return
+		}
+		data, err = ioutil.ReadAll(resp.Body)
+		if err != nil {
+			return
+		}
 	}
-	doc, _ := gokogiri.ParseXml(data)
-	return (doc)
+	doc, err = gokogiri.ParseXml(data)
+	return
 }
 
 func dataToXml(data []byte) (*xml.XmlDocument, xml.Node) {
