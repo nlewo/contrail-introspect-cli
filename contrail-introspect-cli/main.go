@@ -14,15 +14,19 @@ import "github.com/nlewo/contrail-introspect-cli/collection"
 func multiple(vrouter string, vrf_name string, count bool) {
 	url := "http://" + vrouter + ":8085" + "/Snh_PageReq?x=begin:-1,end:-1,table:" + vrf_name + ".uc.route.0,"
 
-	var doc = collection.Load(url, false)
-	defer doc.Free()
-	xps := xpath.Compile("//route_list/list/RouteUcSandeshData/path_list/list/PathSandeshData/nh/NhSandeshData/mc_list/../../../../../../src_ip/text()")
-	ss, _ := doc.Root().Search(xps)
-	if count {
-		fmt.Printf("%d\n", len(ss))
+	doc, err := collection.Load(url, false)
+	if err != nil {
+		fmt.Printf("%s\n", err)
 	} else {
-		for _, s := range ss {
-			fmt.Printf("%s\n", s)
+		defer doc.Free()
+		xps := xpath.Compile("//route_list/list/RouteUcSandeshData/path_list/list/PathSandeshData/nh/NhSandeshData/mc_list/../../../../../../src_ip/text()")
+		ss, _ := doc.Root().Search(xps)
+		if count {
+			fmt.Printf("%d\n", len(ss))
+		} else {
+			for _, s := range ss {
+				fmt.Printf("%s\n", s)
+			}
 		}
 	}
 }
