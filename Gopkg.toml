@@ -1,0 +1,16 @@
+
+[[constraint]]
+  branch = "master"
+  name = "github.com/gosuri/uitable"
+
+[[constraint]]
+  name = "github.com/jbowtie/gokogiri"
+  branch = "master"
+
+[[constraint]]
+  branch = "v2"
+  name = "gopkg.in/urfave/cli.v2"
+
+[prune]
+  go-tests = true
+  unused-packages = true
