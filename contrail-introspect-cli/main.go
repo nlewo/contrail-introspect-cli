@@ -89,6 +89,7 @@ func main() {
 				return nil
 			},
 		},
+		descriptions.RouteDiff(),
 	}
 	app.Run(os.Args)
 }
