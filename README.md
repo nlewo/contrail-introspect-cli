@@ -1,5 +1,7 @@
 [![Build Status](https://travis-ci.org/nlewo/contrail-introspect-cli.svg?branch=master)](https://travis-ci.org/nlewo/contrail-introspect-cli)
 
+**!!! This project is no longer maintained !!!**
+
 CLI on ContraiL Introspects
 ===========================
 
