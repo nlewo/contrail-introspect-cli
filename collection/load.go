@@ -57,6 +57,7 @@ func Load(url string, fromFile bool) (doc *xml.XmlDocument, err error) {
 		if err != nil {
 			return
 		}
+		defer resp.Body.Close()
 		data, err = ioutil.ReadAll(resp.Body)
 		if err != nil {
 			return
@@ -117,6 +118,7 @@ func (page Remote) Load(descCol DescCollection) (Collection, error) {
 	if err != nil {
 		return Collection{}, err
 	}
+	defer resp.Body.Close()
 	data, _ := ioutil.ReadAll(resp.Body)
 	return fromDataToCollection(data, descCol, url), nil
 }
@@ -132,6 +134,7 @@ func (page Webui) Load(descCol DescCollection) (Collection, error) {
 	if err != nil {
 		return Collection{}, err
 	}
+	defer resp.Body.Close()
 	data, _ = ioutil.ReadAll(resp.Body)
 	doc, node = dataToXml(data)
 
@@ -156,6 +159,7 @@ func (page Webui) Load(descCol DescCollection) (Collection, error) {
 				lists, _ := node.Search("/*/*/list")
 				lists[len(lists)-1].InsertAfter(l)
 			}
+			resp.Body.Close()
 		} else {
 			break
 		}
